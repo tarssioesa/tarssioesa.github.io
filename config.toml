@@ -12,7 +12,7 @@
 # For developpers, if you modify this theme, put your images in `source/images` folder and
 # use grunt task `build` to synchronize assets
 
-baseURL = "https://compassionate-liskov-155079.netlify.com/"
+baseURL = "/"
 languageCode = "pt-BR"
 defaultContentLanguage = "pt-BR"
 title = "Dad2s"
