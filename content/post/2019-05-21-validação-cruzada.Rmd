@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Objetivo
 
-Esta pequena apresentação tem como objetivo demonstrar o funcionamento de métodos de validação cruzada utilizando o algoritmo KNN. 
+Esta pequena apresentação tem como objetivo demonstrar o funcionamento de métodos de validação cruzada utilizando o algoritmo KNN. A validação cruzada é uma técnica bastante interessante para verificar a capacidade de generalização de determinado modelo ou para identificar a melhor parametrização para este.
 
 Para isto usaremos o pacote `caret` que nos possibilita criar uma estrutura base para aplicação de algoritmos de aprendizado de máquinas. 
 
@@ -36,7 +36,13 @@ c) No último, haverá 50 observações de chuveiro e bacia, porém, apenas 20 d
 
 Queremos, por fim, comparar a performace dos métodos de validação cruzada para cada um destes. Os métodos utilizados serão o de `Boostrap`, `k folds` e `Repeated k folds`.
 
-Por fim, será comparado o tempo de computação quando o método é o `Repeated k folds` versus `Leave One Out`.
+O `Boostrap` é um método baseado, na sua forma mais simplória, na reamostragem com reposição das obsevações encontradas no banco de dados. Sendo, particularmente, útil na estimativa da distribuição empírica de estatísticas e na estimativa de intervalo de confiança para os estimadores.
+
+No `k folds` dividimos nossa base de dados em k partes, quando temos k igual ao número de observações obtemos o leave-one-out.
+
+Quando realizamos o `Repetead k folds` repetimos o `k folds` n vezes, sendo que há o embaralhamento das amostras dos dados antes de cada repetição.
+
+Para aprofundamento teórico sugere-se a leitura de : "An Introduction to Statiscal Learning" : Gareth James, Daniela Witten, Trevor Hastie e Robert Tibshirani.
 
 ```{r warning= FALSE}
 
@@ -44,7 +50,6 @@ Por fim, será comparado o tempo de computação quando o método é o `Repeated
 
 require(caret)
 require(tidyverse)
-require(profvis)
 require(gridExtra)
 
 ```
@@ -258,8 +263,6 @@ acc
 É interessante observar que o modelo de repetidos k-folds possui melhores resultados quanto a acurácia do teste e tem o menor número ótimos de vizinhos, sendo um modelo mais simples quando comparado aos demais. 
 
 Pontua-se, também, que o bootstrap é o modelo com os piores valores de acurácia, quando se observa os conjuntos de validação cruzada, enquanto que os repetidos k-folds apresentam grande variabilidade, mas bom resultado mediano.
-
-
 
 
 # Exemplo B
@@ -662,124 +665,4 @@ acc
 
 Neste último caso, a despeito de uma boa diferença entre a distribuição das acurácias para os métodos de bootstrap e repetidos k-folds, se obteve o mesmo resultado para os dados de treino.
 
-
-### Comparando tempo de processamento
-
-Nesta última etapa, será utilizado o pacote profvis para visualizar o tempo gasto para realizar a validação cruzada utilizando os métodos: `repeated k-folds` e `Leave One Out`.
-
-Para isto, recriará-se a amostragem feita no exemplo A.
-
-#### Obtendo a amostragem desejada: 
-
-```{r message=FALSE, warning=FALSE}
-
-# Criando amostragem
-
-set.seed(1)
-
-dados <- features_atual %>% 
-  filter(categoria %in% c("Bacia", "Chuveiro", "Torneira Interna")) %>% 
-  filter(casa == "B")
-
-dados$categoria <- fct_drop(dados$categoria)  # Removendo as categórias não utilizadas
-
-sample <- dados %>%
-  group_by(categoria) %>%
-  sample_n(1000) %>%  # Escolhendo 1000 observações de cada
-  select(-c(10:18)) %>% 
-  na.omit()
-
-head(sample)
-
-```
-
-#### Criando o grupo de treino e de teste:
-
-```{r warning= FALSE}
-
-# Definindo Split
-
-split=0.80
-
-trainIndex <- createDataPartition(sample$categoria, p=split, list=FALSE)
-
-# Separando 
-
-data_train <- sample[ trainIndex,]
-
-data_test <- sample[-trainIndex,]
-
-```
-
-#### Rodando novamente o modelo : 
-
-
-#### Repetidos K-Folds: 
-
-```{r warning= FALSE}
-
-model1 <- train(categoria ~ ., 
-               data = data_train,
-               method = "knn",
-               preProcess = c("center", "scale"),
-               tuneLength = 10, 
-               trControl = trainControl(method="repeatedcv", number=10, repeats=10))
-model1
-
-# Testando os resultados obtidos
-
-
-# Predição
-
-predictions <- predict(model1, data_test)
-
-# Resultados
-
-confusionMatrix(predictions, data_test$categoria) 
-
-# Testando o tempo de processamento 
-
-profvis({model1 <- train(categoria ~ ., 
-               data = data_train,
-               method = "knn",
-               preProcess = c("center", "scale"),
-               tuneLength = 10, 
-               trControl = trainControl(method="repeatedcv", number=10, repeats=10))})
-```
-
-
-```{r warning= FALSE}
-
-#### Leave one Out: 
-
-model2 <- train(categoria ~ ., 
-               data = data_train,
-               method = "knn",
-               preProcess = c("center", "scale"),
-               tuneLength = 10, 
-               trControl = trainControl(method="repeatedcv", number=10, repeats=10))
-
-model2
-
-# Testando os resultados obtidos
-
-# Predição
-
-predictions <- predict(model2, data_test)
-
-# Resultados
-
-confusionMatrix(predictions, data_test$categoria) 
-
-
-profvis({model2 <- train(categoria ~ ., 
-               data = data_train,
-               method = "knn",
-               preProcess = c("center", "scale"),
-               tuneLength = 10, 
-               trControl = trainControl(method="repeatedcv", number=10, repeats=10))})
-
-```
-
-
-Interessante observar que ambos métodos levam a resultados semelhantes em tempo semelhantes.
+O exposto nesta breve postagem diz respeito a uma questão prática de como realizar e por que realizar a validação cruzada ao se aplicar um modelo, não supri a necessidade de entender os métodos.
