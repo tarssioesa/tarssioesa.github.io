@@ -1,0 +1,176 @@
+---
+title: 'Introdução ao PC: Parte 1.'
+author: Tarssio Barreto
+date: '2019-05-21'
+slug: introdução-ao-pc-parte-1
+categories: []
+tags: []
+keywords:
+  - tech
+---
+
+<div style="text-align: justify">
+
+## PCA
+
+De forma muito simples, o PCA tem as seguintes objetivos: 
+
+a) Reduzir a dimensão dos dados em análise, visando eliminar sobreposições, a partir da combinação linear das variáveis originais.
+
+b) Geometricamente, o objetivo do PCA é rotacionar o eixo de um espaço com p dimensões para uma nova posição, na qual os PCs são ordenados pela variância e a covariância entre cada par dos novos eixos é 0.
+
+c) Esta técnica é comumente utilizada para visualização dos dados, regressão (PCR, PLS) e estudo de padrões (inclusive em imagens e textos).
+
+O passo-a-passo para criar o PCA é: 
+
+1.  Definir a matriz de dados;
+
+2.  Calcular o vetor médio dos dados;
+
+3.   Subtrair a média de todos os itens;
+
+4.  Calcular a matriz de covâriancia;
+
+5.  Calcular autovalores e autovetores
+
+## Pacotes que serão utilizados: 
+
+```{r warning = FALSE, message = FALSE}
+
+
+#install.packages("pacman")
+library(pacman)
+
+
+p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widyr, irlba, 
+       Rtsne,plotly)
+
+``` 
+
+
+### Realizando o PCA e analisando os resultados
+
+#### Carregando os dados:
+
+```{r warning = FALSE, message = FALSE}
+
+dados <- load("C:/Users/tarss/Desktop/SER/CURO_SER/data_041218_1138.RData")
+
+dados <- features_atual %>% 
+  group_by(categoria) %>% 
+  dplyr::filter(categoria %in% c("Torneira Interna", "Bacia")) %>% 
+  dplyr::sample_n(1000)
+
+dados$categoria <- forcats::fct_drop(dados$categoria)
+
+
+x <- dados[,c(2:9)]
+ 
+```
+
+#### Realizaremos, primeiro, o PCA através do passo-a-passo a seguir:
+
+1) Escalonando os dados: 
+
+```{r warning = FALSE, message = FALSE}
+
+x1 <- scale(x)
+
+```
+
+2) Cálculo da covariância: 
+
+```{r warning = FALSE, message = FALSE}
+
+covariancia <- cov(x1)
+
+covariancia
+```
+
+3) Autovetores e valores: 
+
+
+```{r warning = FALSE, message = FALSE}
+
+auto <- eigen(covariancia)
+
+auto$vectors # Autovetores
+
+auto$values # Autovalores
+```
+
+
+#### Exploraremos agora, brevemente, alguns opções de projeção do PCA:
+
+Usaremos para isto o pacote `factoextra`. Primeiramente, vamos construir nosso objeto `pca`
+
+```{r warning = FALSE, message = FALSE}
+
+x_pca <- prcomp(x, scale = TRUE)
+
+summary(x_pca)
+
+x_pca$rotation
+```
+É interessante, em momento de exercicio, comparar o obtido através do algoritmo e o resultado da função `prcomp`. 
+
+É possível perceber, também, que com as três componentes principais podemos explicar cerca de 90% da variância dos dados, reduzindo de forma significativa o numéro de dimensões do nosso problema. Vamos, enfim, explorar a projeção das nossas componentes principais.
+
+```{r warning = FALSE, message = FALSE}
+
+factoextra::fviz_pca_biplot(x_pca, repel = FALSE)
+
+```
+
+Com o gráfico acima verificamos a direção de alguma das variáveis e como os dados se comportam após em função dos dois primeiros componentes gerados pela PCA. Observamos também que duração e nmoda estão bem correlacionados, assim como moda media, pico e mediana estão entre sí.
+
+É pertinente para avaliarmos, também, se a relação entre as variáveis, tendo como base o fenômeno real, se mantem nesta projeção criada.
+
+Podemos, ver também como acontece a projeção, tendo em vista as classificações dos usos domésticos de água: 
+
+```{r warning = FALSE, message = FALSE}
+
+factoextra::fviz_pca_ind(x_pca,
+             label = "none", # hide individual labels
+             habillage = dados$categoria, # color by groups
+             addEllipses = TRUE # Concentration ellipses
+             )
+
+```
+
+Ao observar, este plot, pode-se perceber que há uma certa definição dos grupos, sendo possível, com métodos como o `knn` treinar um modelo para determinar qual a categoria de uma nova observação a partir das componentes principais, nas quais a correlação entre as variáveis tende a ser nula.
+
+Por fim, o PCA também pode ser utilizado para indicar possíveis `outliers` através do `Q contribution`. Deve-se, neste momento, realizar um pequeno esforço de abstração para entender que, num caso multivariado, há dois principais tipos de outliers. O primeiro diz respeito a valores aberrantes das variáveis, fora do range considerado aceitável para esta.
+
+O segundo, e mais interessante no caso do PCA, versa sobre a quebra da correlação, ou seja, mesmo que os dados estejam dentro dos limites aceitáveis, uma dada observação nao respeita a correlação existente entre as variáveis.
+
+
+```{r warning = FALSE, message = FALSE}
+
+p <- fviz_pca_ind(x_pca, addEllipses = TRUE, habillage = dados$categoria, ellipse.level=0.95, geom =                           c("text","point"),
+                  repel = FALSE) + xlim(-10, 15) + ylim (-10, 10) + labs(title ="PCA", x = "PC1", y = "PC2")
+p
+
+```
+
+
+Observando a elipse formada, inferimos a cerca dos `outliers`. Para selecionar e remover estes valores ditos aberrantes vamos utilizar as seguintes funções: 
+
+
+```{r warning = FALSE, message = FALSE}
+
+outlier <- which(p$data$contrib > .5)  #podemos utilizar maiores ou menores valores para o Q.
+
+outlier
+
+#Removendo os valores: 
+
+data_pca <- x_pca$x %>% 
+  as.tibble() %>% 
+  slice(-outlier)
+  
+```
+
+Em publicação posterior veremos como funciona o PCA em texto!
+
+  

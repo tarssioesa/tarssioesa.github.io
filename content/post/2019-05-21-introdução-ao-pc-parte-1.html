@@ -1,0 +1,182 @@
+---
+title: 'Introdução ao PC: Parte 1.'
+author: Tarssio Barreto
+date: '2019-05-21'
+slug: introdução-ao-pc-parte-1
+categories: []
+tags: []
+keywords:
+  - tech
+---
+
+
+
+<div style="text-align: justify">
+
+<div id="pca" class="section level2">
+<h2>PCA</h2>
+<p>De forma muito simples, o PCA tem as seguintes objetivos:</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>Reduzir a dimensão dos dados em análise, visando eliminar sobreposições, a partir da combinação linear das variáveis originais.</p></li>
+<li><p>Geometricamente, o objetivo do PCA é rotacionar o eixo de um espaço com p dimensões para uma nova posição, na qual os PCs são ordenados pela variância e a covariância entre cada par dos novos eixos é 0.</p></li>
+<li><p>Esta técnica é comumente utilizada para visualização dos dados, regressão (PCR, PLS) e estudo de padrões (inclusive em imagens e textos).</p></li>
+</ol>
+<p>O passo-a-passo para criar o PCA é:</p>
+<ol style="list-style-type: decimal">
+<li><p>Definir a matriz de dados;</p></li>
+<li><p>Calcular o vetor médio dos dados;</p></li>
+<li><p>Subtrair a média de todos os itens;</p></li>
+<li><p>Calcular a matriz de covâriancia;</p></li>
+<li><p>Calcular autovalores e autovetores</p></li>
+</ol>
+</div>
+<div id="pacotes-que-serao-utilizados" class="section level2">
+<h2>Pacotes que serão utilizados:</h2>
+<pre class="r"><code>#install.packages(&quot;pacman&quot;)
+library(pacman)
+
+
+p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widyr, irlba, 
+       Rtsne,plotly)</code></pre>
+<div id="realizando-o-pca-e-analisando-os-resultados" class="section level3">
+<h3>Realizando o PCA e analisando os resultados</h3>
+<div id="carregando-os-dados" class="section level4">
+<h4>Carregando os dados:</h4>
+<pre class="r"><code>dados &lt;- load(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/data_041218_1138.RData&quot;)
+
+dados &lt;- features_atual %&gt;% 
+  group_by(categoria) %&gt;% 
+  dplyr::filter(categoria %in% c(&quot;Torneira Interna&quot;, &quot;Bacia&quot;)) %&gt;% 
+  dplyr::sample_n(1000)
+
+dados$categoria &lt;- forcats::fct_drop(dados$categoria)
+
+
+x &lt;- dados[,c(2:9)]</code></pre>
+</div>
+<div id="realizaremos-primeiro-o-pca-atraves-do-passo-a-passo-a-seguir" class="section level4">
+<h4>Realizaremos, primeiro, o PCA através do passo-a-passo a seguir:</h4>
+<ol style="list-style-type: decimal">
+<li>Escalonando os dados:</li>
+</ol>
+<pre class="r"><code>x1 &lt;- scale(x)</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Cálculo da covariância:</li>
+</ol>
+<pre class="r"><code>covariancia &lt;- cov(x1)
+
+covariancia</code></pre>
+<pre><code>##           duracao       nmoda    volume   inercia       moda       media
+## duracao 1.0000000 0.921314181 0.7577975 0.2507393 0.11428252 0.087527205
+## nmoda   0.9213142 1.000000000 0.6236474 0.3522375 0.02776909 0.001039687
+## volume  0.7577975 0.623647433 1.0000000 0.3783776 0.53682031 0.541660051
+## inercia 0.2507393 0.352237537 0.3783776 1.0000000 0.26720414 0.243694566
+## moda    0.1142825 0.027769088 0.5368203 0.2672041 1.00000000 0.902825599
+## media   0.0875272 0.001039687 0.5416601 0.2436946 0.90282560 1.000000000
+## pico    0.1878321 0.055723327 0.5950049 0.1569112 0.79395484 0.908505320
+## mediana 0.1024708 0.015673699 0.5617766 0.2824510 0.93107185 0.970040585
+##               pico   mediana
+## duracao 0.18783207 0.1024708
+## nmoda   0.05572333 0.0156737
+## volume  0.59500491 0.5617766
+## inercia 0.15691117 0.2824510
+## moda    0.79395484 0.9310719
+## media   0.90850532 0.9700406
+## pico    1.00000000 0.8620363
+## mediana 0.86203634 1.0000000</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>Autovetores e valores:</li>
+</ol>
+<pre class="r"><code>auto &lt;- eigen(covariancia)
+
+auto$vectors # Autovetores</code></pre>
+<pre><code>##            [,1]       [,2]        [,3]        [,4]        [,5]        [,6]
+## [1,] -0.2087146 -0.5669370  0.24784739 -0.05411144  0.02176190  0.18201193
+## [2,] -0.1620254 -0.5951821  0.06665899 -0.37507047  0.41065527 -0.14376701
+## [3,] -0.3854724 -0.3074924  0.12981230  0.45429282 -0.64403308 -0.15477260
+## [4,] -0.1978361 -0.2015793 -0.93770632  0.14407977  0.06371369  0.08758821
+## [5,] -0.4242529  0.2135766 -0.02194122 -0.56030715 -0.31783400  0.57701401
+## [6,] -0.4366343  0.2427780  0.02611051 -0.04354934  0.22599744 -0.42238176
+## [7,] -0.4224766  0.1807122  0.19061980  0.51779411  0.50883162  0.41905339
+## [8,] -0.4396946  0.2279076 -0.02201809 -0.21284212 -0.03236835 -0.47709454
+##             [,7]        [,8]
+## [1,]  0.72824427 -0.08199199
+## [2,] -0.52709171  0.08516066
+## [3,] -0.30617372 -0.03392267
+## [4,]  0.09091446 -0.01334037
+## [5,] -0.13426138 -0.08932667
+## [6,]  0.06987714 -0.71656611
+## [7,] -0.10451189  0.19741300
+## [8,]  0.23663297  0.65136635</code></pre>
+<pre class="r"><code>auto$values # Autovalores</code></pre>
+<pre><code>## [1] 4.36394408 2.28577856 0.83050716 0.21580630 0.17229309 0.07158314
+## [7] 0.03954038 0.02054728</code></pre>
+</div>
+<div id="exploraremos-agora-brevemente-alguns-opcoes-de-projecao-do-pca" class="section level4">
+<h4>Exploraremos agora, brevemente, alguns opções de projeção do PCA:</h4>
+<p>Usaremos para isto o pacote <code>factoextra</code>. Primeiramente, vamos construir nosso objeto <code>pca</code></p>
+<pre class="r"><code>x_pca &lt;- prcomp(x, scale = TRUE)
+
+summary(x_pca)</code></pre>
+<pre><code>## Importance of components:
+##                           PC1    PC2    PC3     PC4     PC5     PC6
+## Standard deviation     2.0890 1.5119 0.9113 0.46455 0.41508 0.26755
+## Proportion of Variance 0.5455 0.2857 0.1038 0.02698 0.02154 0.00895
+## Cumulative Proportion  0.5455 0.8312 0.9350 0.96200 0.98354 0.99249
+##                            PC7     PC8
+## Standard deviation     0.19885 0.14334
+## Proportion of Variance 0.00494 0.00257
+## Cumulative Proportion  0.99743 1.00000</code></pre>
+<pre class="r"><code>x_pca$rotation</code></pre>
+<pre><code>##               PC1        PC2         PC3         PC4         PC5
+## duracao 0.2087146  0.5669370 -0.24784739  0.05411144  0.02176190
+## nmoda   0.1620254  0.5951821 -0.06665899  0.37507047  0.41065527
+## volume  0.3854724  0.3074924 -0.12981230 -0.45429282 -0.64403308
+## inercia 0.1978361  0.2015793  0.93770632 -0.14407977  0.06371369
+## moda    0.4242529 -0.2135766  0.02194122  0.56030715 -0.31783400
+## media   0.4366343 -0.2427780 -0.02611051  0.04354934  0.22599744
+## pico    0.4224766 -0.1807122 -0.19061980 -0.51779411  0.50883162
+## mediana 0.4396946 -0.2279076  0.02201809  0.21284212 -0.03236835
+##                 PC6         PC7         PC8
+## duracao -0.18201193  0.72824427  0.08199199
+## nmoda    0.14376701 -0.52709171 -0.08516066
+## volume   0.15477260 -0.30617372  0.03392267
+## inercia -0.08758821  0.09091446  0.01334037
+## moda    -0.57701401 -0.13426138  0.08932667
+## media    0.42238176  0.06987714  0.71656611
+## pico    -0.41905339 -0.10451189 -0.19741300
+## mediana  0.47709454  0.23663297 -0.65136635</code></pre>
+<p>É interessante, em momento de exercicio, comparar o obtido através do algoritmo e o resultado da função <code>prcomp</code>.</p>
+<p>É possível perceber, também, que com as três componentes principais podemos explicar cerca de 90% da variância dos dados, reduzindo de forma significativa o numéro de dimensões do nosso problema. Vamos, enfim, explorar a projeção das nossas componentes principais.</p>
+<pre class="r"><code>factoextra::fviz_pca_biplot(x_pca, repel = FALSE)</code></pre>
+<p><img src="/post/2019-05-21-introdução-ao-pc-parte-1_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>Com o gráfico acima verificamos a direção de alguma das variáveis e como os dados se comportam após em função dos dois primeiros componentes gerados pela PCA. Observamos também que duração e nmoda estão bem correlacionados, assim como moda media, pico e mediana estão entre sí.</p>
+<p>É pertinente para avaliarmos, também, se a relação entre as variáveis, tendo como base o fenômeno real, se mantem nesta projeção criada.</p>
+<p>Podemos, ver também como acontece a projeção, tendo em vista as classificações dos usos domésticos de água:</p>
+<pre class="r"><code>factoextra::fviz_pca_ind(x_pca,
+             label = &quot;none&quot;, # hide individual labels
+             habillage = dados$categoria, # color by groups
+             addEllipses = TRUE # Concentration ellipses
+             )</code></pre>
+<p><img src="/post/2019-05-21-introdução-ao-pc-parte-1_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>Ao observar, este plot, pode-se perceber que há uma certa definição dos grupos, sendo possível, com métodos como o <code>knn</code> treinar um modelo para determinar qual a categoria de uma nova observação a partir das componentes principais, nas quais a correlação entre as variáveis tende a ser nula.</p>
+<p>Por fim, o PCA também pode ser utilizado para indicar possíveis <code>outliers</code> através do <code>Q contribution</code>. Deve-se, neste momento, realizar um pequeno esforço de abstração para entender que, num caso multivariado, há dois principais tipos de outliers. O primeiro diz respeito a valores aberrantes das variáveis, fora do range considerado aceitável para esta.</p>
+<p>O segundo, e mais interessante no caso do PCA, versa sobre a quebra da correlação, ou seja, mesmo que os dados estejam dentro dos limites aceitáveis, uma dada observação nao respeita a correlação existente entre as variáveis.</p>
+<pre class="r"><code>p &lt;- fviz_pca_ind(x_pca, addEllipses = TRUE, habillage = dados$categoria, ellipse.level=0.95, geom =                           c(&quot;text&quot;,&quot;point&quot;),
+                  repel = FALSE) + xlim(-10, 15) + ylim (-10, 10) + labs(title =&quot;PCA&quot;, x = &quot;PC1&quot;, y = &quot;PC2&quot;)
+p</code></pre>
+<p><img src="/post/2019-05-21-introdução-ao-pc-parte-1_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>Observando a elipse formada, inferimos a cerca dos <code>outliers</code>. Para selecionar e remover estes valores ditos aberrantes vamos utilizar as seguintes funções:</p>
+<pre class="r"><code>outlier &lt;- which(p$data$contrib &gt; .5)  #podemos utilizar maiores ou menores valores para o Q.
+
+outlier</code></pre>
+<pre><code>## [1]  214  587 1265 1319 1374 1588 1903 1934</code></pre>
+<pre class="r"><code>#Removendo os valores: 
+
+data_pca &lt;- x_pca$x %&gt;% 
+  as.tibble() %&gt;% 
+  slice(-outlier)</code></pre>
+<p>Em publicação posterior veremos como funciona o PCA em texto!</p>
+</div>
+</div>
+</div>

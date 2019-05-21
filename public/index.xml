@@ -12,6 +12,18 @@
     
     
     <item>
+      <title>Introdução ao PC: Parte 1.</title>
+      <link>/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/</link>
+      <pubDate>Tue, 21 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/</guid>
+      <description>PCADe forma muito simples, o PCA tem as seguintes objetivos:
+Reduzir a dimensão dos dados em análise, visando eliminar sobreposições, a partir da combinação linear das variáveis originais.
+Geometricamente, o objetivo do PCA é rotacionar o eixo de um espaço com p dimensões para uma nova posição, na qual os PCs são ordenados pela variância e a covariância entre cada par dos novos eixos é 0.
+Esta técnica é comumente utilizada para visualização dos dados, regressão (PCR, PLS) e estudo de padrões (inclusive em imagens e textos).</description>
+    </item>
+    
+    <item>
       <title>Validação Cruzada</title>
       <link>/2019/05/valida%C3%A7%C3%A3o-cruzada/</link>
       <pubDate>Tue, 21 May 2019 00:00:00 +0000</pubDate>
