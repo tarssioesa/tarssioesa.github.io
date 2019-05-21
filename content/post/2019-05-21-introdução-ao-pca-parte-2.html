@@ -1,0 +1,254 @@
+---
+title: 'Introdução ao PCA: Parte 2'
+author: Tarssio Barreto
+date: '2019-05-21'
+slug: introdução-ao-pca-parte-2
+categories: []
+tags: []
+keywords:
+  - tech
+---
+
+
+
+<!--more-->
+<div style="text-align: justify">
+
+<div id="pacotes-que-serao-utilizados" class="section level2">
+<h2>Pacotes que serão utilizados:</h2>
+<pre class="r"><code>#install.packages(&quot;pacman&quot;)
+library(pacman)
+
+
+p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widyr, irlba, 
+       Rtsne,plotly)</code></pre>
+</div>
+<div id="pca-para-dados-textuais" class="section level2">
+<h2>PCA para dados textuais:</h2>
+<div id="objetivo" class="section level3">
+<h3>Objetivo:</h3>
+<p>Veremos de forma breve (sem entrar nas questões de NLP) como esta técnica pode ser utilizada em análise. textual.</p>
+<p>Utilizaremos os seguintes pacotes para determinar a similaridade entre as palavras utilizados por Albert Camus no seu clássico: “O Estrangeiro”.</p>
+<pre class="r"><code>knitr::include_graphics(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/7248407GG.jpg&quot;)</code></pre>
+<p><img src="C:/Users/tarss/Desktop/SER/CURO_SER/7248407GG.jpg" width="250" /></p>
+<p><strong>“Hoje, a mãe morreu. Ou talvez ontem, não sei bem. Recebi um telegrama do asilo:<strong>
+</strong>“Sua mãe falecida: Enterro amanhã. Sentidos pêsames”.</strong>
+<strong>Isto não quer dizer nada. Talvez tenha sido ontem."</strong></p>
+<div id="carregando-o-livro" class="section level4">
+<h4>Carregando o livro</h4>
+<pre class="r"><code>x0 &lt;- epubr::epub(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/O Estrangeiro - Albert Camus.epub&quot;)
+
+estrangeiro &lt;- x0$data[[1]]</code></pre>
+</div>
+<div id="alguns-ajustes" class="section level4">
+<h4>Alguns ajustes</h4>
+<p>Analisando os “unigrams”:</p>
+<pre class="r"><code>unigram_probs &lt;- estrangeiro %&gt;%
+  tidytext::unnest_tokens(word, text) %&gt;%
+  count(word, sort = TRUE) %&gt;%
+  mutate(p = n / sum(n)) 
+
+head(unigram_probs)</code></pre>
+<pre><code>## # A tibble: 6 x 3
+##   word      n      p
+##   &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;
+## 1 que    1227 0.0408
+## 2 a      1112 0.0370
+## 3 o      1053 0.0350
+## 4 e       990 0.0329
+## 5 de      905 0.0301
+## 6 me      664 0.0221</code></pre>
+<p>Vamos escolher uma janela móvel de 20 palavras, pode-se aplicar maiores ou menores, é interessante testar algumas afim de entender qual é o valor que propociona os melhores resultados. Desta forma, vamos observar quais palavras estão mais presentes nas mesmas janelas definidas, sendo então , estas, consideradas como similares.</p>
+<pre class="r"><code>stop_words &lt;- stopwords(kind = &quot;pt&quot;) %&gt;% 
+  as.tibble()
+
+colnames(stop_words) &lt;- c(&quot;word&quot;)
+
+#Neste momento, vamos separar as palavras utilizadas e remover as `stopwords` em português. As `stopwords` são palavras como artigos, pronomes e outros complementos que não possuem, geralmente, significado.
+
+
+tidy_skipgrams &lt;- estrangeiro %&gt;%
+  tidytext::unnest_tokens(ngram, text, token = &quot;ngrams&quot;, n = 20) %&gt;%
+  mutate(ngramID = row_number()) %&gt;% 
+  unite(skipgramID, ngramID) %&gt;%
+  unnest_tokens(word, ngram) %&gt;% 
+  anti_join(stop_words, by = &quot;word&quot;)
+
+head(tidy_skipgrams)</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   section           nword nchar skipgramID word    
+##   &lt;chr&gt;             &lt;int&gt; &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;   
+## 1 content0002.xhtml     2    14 1          &lt;NA&gt;    
+## 2 content0003.xhtml  4167 24617 2          capítulo
+## 3 content0003.xhtml  4167 24617 2          i       
+## 4 content0003.xhtml  4167 24617 2          hoje    
+## 5 content0003.xhtml  4167 24617 2          mãe     
+## 6 content0003.xhtml  4167 24617 2          morreu</code></pre>
+</div>
+<div id="calculando-as-probabilidades" class="section level4">
+<h4>Calculando as probabilidades:</h4>
+<pre class="r"><code>skipgram_probs &lt;- tidy_skipgrams %&gt;%
+  widyr::pairwise_count(word, skipgramID, diag = TRUE, sort = TRUE) %&gt;%
+  dplyr::mutate(p = n / sum(n))
+
+head(skipgram_probs)</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   item1    item2        n        p
+##   &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+## 1 disse    disse     3726 0.00118 
+## 2 mim      mim       2011 0.000638
+## 3 é        é         1859 0.000590
+## 4 pouco    pouco     1727 0.000548
+## 5 raimundo raimundo  1687 0.000535
+## 6 então    então     1626 0.000516</code></pre>
+</div>
+<div id="normalizando-a-probabilidade" class="section level4">
+<h4>Normalizando a probabilidade</h4>
+<p>Vamos utilizar um indicador para visualizar quais palavras ocorreram juntas com mais frequência do que o esperado, tendo em base a frequência com que elas ocorreram sozinhas.</p>
+<p>O quanto maior o resultado, mais estas palavras estão associadas e possuem boa probabilidade de ocorrem juntas, em relação a probabilidade de serem encontradas individualmente.</p>
+<pre class="r"><code>normalized_prob &lt;- skipgram_probs %&gt;%
+  dplyr::filter(n &gt; 20) %&gt;%
+  dplyr::rename(word1 = item1, word2 = item2) %&gt;%
+  dplyr::left_join(unigram_probs %&gt;%
+              select(word1 = word, p1 = p),
+            by = &quot;word1&quot;) %&gt;%
+  dplyr::left_join(unigram_probs %&gt;%
+              select(word2 = word, p2 = p),
+            by = &quot;word2&quot;) %&gt;%
+  dplyr::mutate(p_together = p / p1 / p2)
+
+
+head(normalized_prob)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+##   word1    word2        n        p      p1      p2 p_together
+##   &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;
+## 1 disse    disse     3726 0.00118  0.00642 0.00642       28.7
+## 2 mim      mim       2011 0.000638 0.00343 0.00343       54.4
+## 3 é        é         1859 0.000590 0.00349 0.00349       48.4
+## 4 pouco    pouco     1727 0.000548 0.00323 0.00323       52.6
+## 5 raimundo raimundo  1687 0.000535 0.00306 0.00306       57.2
+## 6 então    então     1626 0.000516 0.00279 0.00279       66.1</code></pre>
+<p>Quanto maior o p_together maior a chance das palavras serem encontradas na mesma janela e exibe a relação entre a probabilidade destas palavras aparecerem sozinhas contra a probabilidade das duas palavras em questão aparecerem na mesma janela.</p>
+</div>
+<div id="vamos-observar-quais-palavras-estao-associadas-a-praia" class="section level4">
+<h4>Vamos observar quais palavras estão associadas a “praia”:</h4>
+<pre class="r"><code>normalized_prob %&gt;% 
+  dplyr::filter(word1 == &quot;praia&quot;) %&gt;%
+  dplyr::arrange(-p_together)</code></pre>
+<pre><code>## # A tibble: 46 x 7
+##    word1 word2         n          p      p1        p2 p_together
+##    &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+##  1 praia praia       573 0.000182   0.00103 0.00103        171. 
+##  2 praia saco         54 0.0000171  0.00103 0.0000998      167. 
+##  3 praia aonde        34 0.0000108  0.00103 0.0000665      157. 
+##  4 praia vimos        28 0.00000888 0.00103 0.0000998       86.3
+##  5 praia planalto     32 0.0000101  0.00103 0.000133        74.0
+##  6 praia nascente     28 0.00000888 0.00103 0.000166        51.8
+##  7 praia repente      28 0.00000888 0.00103 0.000200        43.2
+##  8 praia brilho       32 0.0000101  0.00103 0.000233        42.3
+##  9 praia autocarro    48 0.0000152  0.00103 0.000366        40.4
+## 10 praia argel        21 0.00000666 0.00103 0.000166        38.9
+## # ... with 36 more rows</code></pre>
+<p>Nossa palavra mais similar é “saco”, engraçado, mas faz parte da personalidade de Mersault que vai guiando (ou sendo guiado) durante o livro sem tomar muitas decisões, tomando ações, por muitas vezes, por influência dos outros personagens ou apenas por desejos repentinos que dá neste. Tanto que sua frase marcante é:</p>
+<p>“Tanto faz.”</p>
+</div>
+<div id="vamos-observar-quais-palavras-estao-associadas-a-raimundo" class="section level4">
+<h4>Vamos observar quais palavras estão associadas a “raimundo”:</h4>
+<pre class="r"><code>normalized_prob %&gt;% 
+  dplyr::filter(word1 == &quot;raimundo&quot;) %&gt;%
+  dplyr::arrange(-p_together)</code></pre>
+<pre><code>## # A tibble: 195 x 7
+##    word1    word2           n          p      p1        p2 p_together
+##    &lt;chr&gt;    &lt;chr&gt;       &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+##  1 raimundo raimundo     1687 0.000535   0.00306 0.00306         57.2
+##  2 raimundo copo           33 0.0000105  0.00306 0.0000665       51.4
+##  3 raimundo vítima         31 0.00000983 0.00306 0.0000665       48.3
+##  4 raimundo bêbedo         27 0.00000856 0.00306 0.0000665       42.1
+##  5 raimundo ouviu          40 0.0000127  0.00306 0.0000998       41.6
+##  6 raimundo malandro       26 0.00000825 0.00306 0.0000665       40.5
+##  7 raimundo esbofeteara    26 0.00000825 0.00306 0.0000665       40.5
+##  8 raimundo demora         25 0.00000793 0.00306 0.0000665       39.0
+##  9 raimundo ouvimos        37 0.0000117  0.00306 0.0000998       38.4
+## 10 raimundo dissesse       23 0.00000729 0.00306 0.0000665       35.8
+## # ... with 185 more rows</code></pre>
+<p>Raimundo é um conhecido do Mersault, já que é muito dificil dizer que este personagem possuí afetividade a outros humanos. É um bêbado, vadio e que de alguma forma é responsável por colocar Mersault na cena do crime que é marcante neste livro.</p>
+</div>
+<div id="vamos-transformar-estes-dados-em-uma-matriz-esparsa" class="section level4">
+<h4>Vamos transformar estes dados em uma matriz esparsa:</h4>
+<p>A transformação de dados textuais em matriz, possuem muitos zeros, esta estrutura utilizada economiza tempo e memória.</p>
+<pre class="r"><code>pmi_matrix &lt;- normalized_prob %&gt;%
+    dplyr::mutate(pmi = log10(p_together)) %&gt;%
+    tidytext::cast_sparse(word1, word2, pmi)
+
+dim(pmi_matrix)</code></pre>
+<pre><code>## [1] 1895 1895</code></pre>
+</div>
+<div id="aplicando-o-pca" class="section level4">
+<h4>Aplicando o PCA:</h4>
+<p>Neste caso, usaremos a abordagem do PCA afim de reduzir a dimensionalidade dos dados e buscar uma forma mais interessante de representar a similaridade entre as palavras :</p>
+<pre class="r"><code>pmi_pca &lt;- irlba::prcomp_irlba(pmi_matrix, n = 256)
+
+word_vectors &lt;- pmi_pca$x
+
+rownames(word_vectors) &lt;- rownames(pmi_matrix)
+
+dim(word_vectors)</code></pre>
+<pre><code>## [1] 1895  256</code></pre>
+</div>
+<div id="encontrando-similaridades" class="section level4">
+<h4>Encontrando similaridades:</h4>
+<p>Vamos utilizar uma função publicada pela Julia Silge para para varrer o vetor de <code>word_vectors</code> atrás das palavras de maiores similaridades:</p>
+<pre class="r"><code>search_synonyms &lt;- function(word_vectors, selected_vector) {
+  
+  similarities &lt;- word_vectors %*% selected_vector %&gt;%
+    tidy() %&gt;%
+    as_tibble() %&gt;%
+    rename(token = .rownames,
+           similarity = unrowname.x.)
+  
+  similarities %&gt;%
+    arrange(-similarity)    
+}</code></pre>
+<p>Testando a função:</p>
+<pre class="r"><code>sol &lt;- search_synonyms(word_vectors, word_vectors[&quot;sol&quot;,])
+
+sol</code></pre>
+<pre><code>## # A tibble: 1,895 x 2
+##    token       similarity
+##    &lt;chr&gt;            &lt;dbl&gt;
+##  1 sol              149. 
+##  2 pouco             31.5
+##  3 acalmou           29.5
+##  4 principiava       29.2
+##  5 mim               27.5
+##  6 tudo              26.3
+##  7 pés               25.3
+##  8 vez               24.0
+##  9 porteiro          23.4
+## 10 alto              23.0
+## # ... with 1,885 more rows</code></pre>
+<p><code>"Sol, a culpa deve ser do sol, que bate na moleira, o sol, que embassa os olhos e a razão" : Chico Buarque</code></p>
+<p>O Sol é um participante ativo neste livro, muitas vezes se dá uma posição muito marcante a este, principalmente nos eventos trágicos: enterro e crime.</p>
+<p>Vamos, além de observar as similaridades, classificá-las seguindo a análise de sentimentos presente no lexiconPT.</p>
+<p>Adicionando sentimentos:</p>
+<pre class="r"><code>lex &lt;- lexiconPT::oplexicon_v3.0
+
+colnames(lex)[1] &lt;- &quot;word&quot;
+
+unnested_words &lt;- sol %&gt;%
+  inner_join(lex, by = c(&quot;token&quot; = &quot;word&quot;))</code></pre>
+</div>
+</div>
+<div id="analisando-os-sentimentos-referentes-a-palavra-sol" class="section level3">
+<h3>Analisando os sentimentos referentes a palavra sol:</h3>
+<pre class="r"><code>unnested_words %&gt;% 
+  top_n(40, abs(similarity)) %&gt;% 
+  ggplot(aes(x = reorder(token, similarity), y = similarity, fill = as.factor(polarity))) +
+  geom_col() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        axis.ticks.x = element_blank())</code></pre>
+<p><img src="/post/2019-05-21-introdução-ao-pca-parte-2_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p>A palavra “sol” neste livro está ligada, como disse anteriormente aos momentos trágicos da obra, logo, percebe-se, também, através do PCA, a predominância de associação a palavras negativas ou neutras.</p>
+</div>
+</div>

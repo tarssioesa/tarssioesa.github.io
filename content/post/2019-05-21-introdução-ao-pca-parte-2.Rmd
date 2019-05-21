@@ -1,0 +1,261 @@
+---
+title: 'Introdução ao PCA: Parte 2'
+author: Tarssio Barreto
+date: '2019-05-21'
+slug: introdução-ao-pca-parte-2
+categories: []
+tags: []
+keywords:
+  - tech
+---
+
+<!--more-->
+
+<div style="text-align: justify">
+
+## Pacotes que serão utilizados: 
+
+```{r warning = FALSE, message = FALSE}
+
+
+#install.packages("pacman")
+library(pacman)
+
+
+p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widyr, irlba, 
+       Rtsne,plotly)
+
+``` 
+
+## PCA para dados textuais: 
+
+### Objetivo: 
+
+Veremos de forma breve (sem entrar nas questões de NLP) como esta técnica pode ser utilizada em análise. textual.
+
+Utilizaremos os seguintes pacotes para determinar a similaridade entre as palavras utilizados por Albert Camus no seu clássico: "O Estrangeiro". 
+
+```{r warning = FALSE, message = FALSE} 
+knitr::include_graphics("C:/Users/tarss/Desktop/SER/CURO_SER/7248407GG.jpg")
+```
+
+**"Hoje, a mãe morreu. Ou talvez ontem, não sei bem. Recebi um telegrama do asilo:**
+**“Sua mãe falecida: Enterro amanhã. Sentidos pêsames”.**
+**Isto não quer dizer nada. Talvez tenha sido ontem."**
+
+#### Carregando o livro
+
+```{r warning = FALSE, message = FALSE} 
+
+x0 <- epubr::epub("C:/Users/tarss/Desktop/SER/CURO_SER/O Estrangeiro - Albert Camus.epub")
+
+estrangeiro <- x0$data[[1]]
+
+```
+
+
+#### Alguns ajustes
+
+Analisando os "unigrams": 
+
+
+```{r warning = FALSE, message = FALSE} 
+
+
+
+unigram_probs <- estrangeiro %>%
+  tidytext::unnest_tokens(word, text) %>%
+  count(word, sort = TRUE) %>%
+  mutate(p = n / sum(n)) 
+
+head(unigram_probs)
+
+```
+
+Vamos escolher uma janela móvel de 20 palavras, pode-se aplicar maiores ou menores, é interessante testar algumas afim de entender qual é o valor que propociona os melhores resultados. Desta forma, vamos observar quais palavras estão mais presentes nas mesmas janelas definidas, sendo então , estas, consideradas como similares.
+
+```{r warning = FALSE, message = FALSE} 
+
+stop_words <- stopwords(kind = "pt") %>% 
+  as.tibble()
+
+colnames(stop_words) <- c("word")
+
+#Neste momento, vamos separar as palavras utilizadas e remover as `stopwords` em português. As `stopwords` são palavras como artigos, pronomes e outros complementos que não possuem, geralmente, significado.
+
+
+tidy_skipgrams <- estrangeiro %>%
+  tidytext::unnest_tokens(ngram, text, token = "ngrams", n = 20) %>%
+  mutate(ngramID = row_number()) %>% 
+  unite(skipgramID, ngramID) %>%
+  unnest_tokens(word, ngram) %>% 
+  anti_join(stop_words, by = "word")
+
+head(tidy_skipgrams)
+
+```
+
+#### Calculando as probabilidades: 
+
+
+```{r warning = FALSE, message = FALSE} 
+
+skipgram_probs <- tidy_skipgrams %>%
+  widyr::pairwise_count(word, skipgramID, diag = TRUE, sort = TRUE) %>%
+  dplyr::mutate(p = n / sum(n))
+
+head(skipgram_probs)
+
+```
+
+#### Normalizando a probabilidade
+
+Vamos utilizar um indicador para visualizar quais palavras ocorreram juntas com mais frequência do que o esperado, tendo em base a frequência com que elas ocorreram sozinhas.
+
+O quanto maior o resultado, mais estas palavras estão associadas e possuem boa probabilidade de ocorrem juntas, em relação a probabilidade de serem encontradas individualmente.
+
+
+```{r warning = FALSE, message = FALSE} 
+
+
+normalized_prob <- skipgram_probs %>%
+  dplyr::filter(n > 20) %>%
+  dplyr::rename(word1 = item1, word2 = item2) %>%
+  dplyr::left_join(unigram_probs %>%
+              select(word1 = word, p1 = p),
+            by = "word1") %>%
+  dplyr::left_join(unigram_probs %>%
+              select(word2 = word, p2 = p),
+            by = "word2") %>%
+  dplyr::mutate(p_together = p / p1 / p2)
+
+
+head(normalized_prob)
+```
+
+Quanto maior o p_together maior a chance das palavras serem encontradas na mesma janela e exibe a relação entre a probabilidade destas palavras aparecerem sozinhas contra a probabilidade das duas palavras em questão aparecerem na mesma janela.
+
+#### Vamos observar quais palavras estão associadas a "praia":  
+
+```{r warning = FALSE, message = FALSE} 
+
+normalized_prob %>% 
+  dplyr::filter(word1 == "praia") %>%
+  dplyr::arrange(-p_together)
+
+```
+
+Nossa palavra mais similar é "saco", engraçado, mas faz parte da personalidade de Mersault que vai guiando (ou sendo guiado) durante o livro sem tomar muitas decisões, tomando ações, por muitas vezes, por influência dos outros personagens ou apenas por desejos repentinos que dá neste. Tanto que sua frase marcante é:
+
+"Tanto faz."
+
+#### Vamos observar quais palavras estão associadas a "raimundo":  
+
+```{r warning = FALSE, message = FALSE} 
+
+normalized_prob %>% 
+  dplyr::filter(word1 == "raimundo") %>%
+  dplyr::arrange(-p_together)
+
+```
+
+Raimundo é um conhecido do Mersault, já que é muito dificil dizer que este personagem possuí afetividade a outros humanos. É um bêbado, vadio e que de alguma forma é responsável por colocar Mersault na cena do crime que é marcante neste livro. 
+
+#### Vamos transformar estes dados em uma matriz esparsa: 
+
+A transformação de dados textuais em matriz, possuem muitos zeros, esta estrutura utilizada economiza tempo e memória.
+
+```{r warning = FALSE, message = FALSE} 
+
+pmi_matrix <- normalized_prob %>%
+    dplyr::mutate(pmi = log10(p_together)) %>%
+    tidytext::cast_sparse(word1, word2, pmi)
+
+dim(pmi_matrix)
+```
+
+
+#### Aplicando o PCA: 
+
+Neste caso, usaremos a abordagem do PCA afim de reduzir a dimensionalidade dos dados e buscar uma forma mais interessante de representar a similaridade entre as palavras : 
+
+
+```{r warning = FALSE, message = FALSE} 
+
+
+pmi_pca <- irlba::prcomp_irlba(pmi_matrix, n = 256)
+
+word_vectors <- pmi_pca$x
+
+rownames(word_vectors) <- rownames(pmi_matrix)
+
+dim(word_vectors)
+
+```
+
+#### Encontrando similaridades: 
+
+Vamos utilizar uma função publicada pela Julia Silge para para varrer o vetor de `word_vectors` atrás das palavras de maiores similaridades: 
+
+```{r warning = FALSE, message = FALSE} 
+
+search_synonyms <- function(word_vectors, selected_vector) {
+  
+  similarities <- word_vectors %*% selected_vector %>%
+    tidy() %>%
+    as_tibble() %>%
+    rename(token = .rownames,
+           similarity = unrowname.x.)
+  
+  similarities %>%
+    arrange(-similarity)    
+}
+
+```
+
+
+Testando a função: 
+
+```{r warning = FALSE, message = FALSE} 
+
+sol <- search_synonyms(word_vectors, word_vectors["sol",])
+
+sol
+
+```
+
+`"Sol, a culpa deve ser do sol, que bate na moleira, o sol, que embassa os olhos e a razão" : Chico Buarque`
+
+O Sol é um participante ativo neste livro, muitas vezes se dá uma posição muito marcante a este, principalmente nos eventos trágicos: enterro e crime.
+
+Vamos, além de observar as similaridades, classificá-las seguindo a análise de sentimentos presente no lexiconPT.
+
+Adicionando sentimentos: 
+
+```{r warning = FALSE, message = FALSE} 
+
+lex <- lexiconPT::oplexicon_v3.0
+
+colnames(lex)[1] <- "word"
+
+unnested_words <- sol %>%
+  inner_join(lex, by = c("token" = "word"))
+
+```
+
+### Analisando os sentimentos referentes a palavra sol: 
+
+```{r warning = FALSE, message = FALSE} 
+
+unnested_words %>% 
+  top_n(40, abs(similarity)) %>% 
+  ggplot(aes(x = reorder(token, similarity), y = similarity, fill = as.factor(polarity))) +
+  geom_col() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        axis.ticks.x = element_blank())
+  
+
+```
+
+A palavra "sol" neste livro está ligada, como disse anteriormente aos momentos trágicos da obra, logo, percebe-se, também, através do PCA, a predominância de associação a palavras negativas ou neutras.
