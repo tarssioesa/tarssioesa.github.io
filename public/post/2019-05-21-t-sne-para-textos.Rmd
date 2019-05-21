@@ -1,0 +1,343 @@
+---
+title: T-SNE para textos.
+author: Tarssio Barreto
+date: '2019-05-21'
+slug: t-sne-para-textos
+categories: []
+tags: []
+keywords:
+  - tech
+---
+
+## Pacotes que serão utilizados: 
+
+```{r warning = FALSE, message = FALSE}
+
+
+#install.packages("pacman")
+library(pacman)
+
+
+p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widyr, irlba, 
+       Rtsne,plotly)
+
+``` 
+
+
+
+## t-SNE
+
+
+o t-SNE é um algoritmo de aprendizado de máquina para visualização desenvolvido por Laurens van der Maaten e Geoffrey Hinton. Esta técnica de redução de dimensionalidade não linear é bem pertinente para a transformação de dados em alta dimensionalidade para dados em duas ou três dimensões.
+Especificamente, ele modela cada objeto de alta dimensão por um ponto bidimensional ou tridimensional de tal forma que objetos similares são modelados por pontos próximos e objetos diferentes são modelados por pontos distantes.
+Para entender mais é interessante que se leia o [artigo](http://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf).
+
+
+Adicionaremos, também, o livro Crime e Castigo (Fiódor Dostoiévsk). Existe uma comparação entre os dois livros, principalmente no que tange aos seus personagens principais: Raskolnikov e Mersault.
+
+```{r warning = FALSE, message = FALSE} 
+knitr::include_graphics("C:/Users/tarss/Desktop/SER/CURO_SER/super_imgcrime_e_castigo_dostoievski_0.jpg")
+```
+
+**Só é dado o poder a quem ousa abaixar-se para apanha-lo.**
+
+### Remontando os datasets com os livros em questão: 
+
+
+```{r warning = FALSE, message = FALSE} 
+
+# Stopwords
+
+stop_words <- stopwords(kind = "pt") %>% 
+  as.tibble()
+
+stop_words <- rbind(stop_words, c("é"))
+
+
+colnames(stop_words)[1] <- "word"
+
+# Carregando 
+
+x0 <- epubr::epub("C:/Users/tarss/Desktop/SER/CURO_SER/O Estrangeiro - Albert Camus.epub")
+
+x1 <- epubr::epub("C:/Users/tarss/Desktop/SER/CURO_SER/Crime e Castigo - Fiódor Dostoiévski.epub")
+
+```
+
+Começaremos, dividindo o texto em paragráfos, neste momento, queremos saber se há similaridade entre os paragráfos escritos por ambos autores em livros que possuem uma certa similaridade. Filtraremos, também, para que sejam utilizadas palavras que aparecem pelo menos algumas vezes durante o livro.
+
+
+#### O Estrangeiro 
+
+```{r warning = FALSE, message = FALSE} 
+
+estrangeiro <- x0$data[[1]]
+
+estrangeiro_ <- estrangeiro %>%
+  tidytext::unnest_tokens(paragraphs, text, token = "paragraphs") %>% 
+  mutate(paragrafo = row_number()) %>% 
+  tidytext::unnest_tokens(word, paragraphs) %>% 
+  anti_join(stop_words, by = "word")  %>% 
+  count(paragrafo, word, sort = TRUE) %>% 
+  mutate(book = "estrangeiro")
+
+id <- max(estrangeiro_$paragrafo)
+
+
+```
+
+#### Crime e Castigo
+
+```{r warning = FALSE, message = FALSE} 
+
+crime <- x1$data[[1]]
+
+crime_ <- crime %>%  
+  tidytext::unnest_tokens(paragraphs, text, token = "paragraphs") %>% 
+  mutate(paragrafo = row_number() + id) %>% 
+  tidytext::unnest_tokens(word, paragraphs) %>% 
+  anti_join(stop_words, by = "word")  %>% 
+  count(paragrafo, word, sort = TRUE) %>% 
+  mutate(book = "crime") 
+
+
+``` 
+
+A princípio, criaremos um banco de dados que é a acumulação dos dois textos no sentido das linhas. Neste será aplicado o TSNE e veremos se é possível visualizar a diferença entre o conteúdo dos parágrafos dos dois textos (É possível fazer com as palavras também, basta restringir um pouco mais o filtro ou ter mais capacidade de processamento).
+
+```{r warning = FALSE, message = FALSE} 
+
+### Similares
+
+similar <- rbind(estrangeiro_, crime_) 
+
+range(similar$paragrafo)
+
+``` 
+Ao se tratar de textos temos alguma medidas clássicas que podem auxiliar nesta separação de conteúdo, podem usar a simples contagem de palavras por parágrafo ou o `tf-idf` que representa o quanto uma palavra é mais exclusiva de um ou outro livro, neste caso. 
+
+Utilizaremos o `tf-idf`, para isto, é aconselhável que retiremos os nomes de pessoas, uma vez que estas palavras são muito exclusivas dos livros a que dizem respeito. Também, removo mais algumas stop_words que se mostraram relevante ao aplicar o `tf-idf`.
+
+```{r warning = FALSE, message = FALSE} 
+
+
+nomes <- c("raskólnikov", "sônia", "razumíkhin", "ivánova", "pietróvitch", "n", 
+           "catierina", "dúnia", "svidrigáilov", "porfiri", "piotr", "pulkhéria", 
+           "t", "avdótia", "ródia", "románovna", "rodíon", "lújin", "atieksándrovna",
+           "dúnietchka", "zóssimov", "zamiótov", "marfa", "sófia", "semeónovna", "nastácia",
+           "pietróvna", "raskólnikovnn", "amália", "liebeziátnikov", "raimundo", "masson", "u", 
+           "perez", "manuel", "meursault", "ivánovna", "alieksándrovna", "lisavieta", "ei", "capítulo",
+           "19", "si", "alguma", "agora", "jeito", "instalamo", "ora", "algum", "há", "ainda", "descemos", 
+           "respondi","instante", "bocadinho", "soubera", "ah", "vou")
+
+
+aux <- similar %>%
+  filter(!word %in% nomes) 
+
+head(aux)
+``` 
+
+
+Criamos, enfim, um objeto um pouco mais coerente para a realização da nossa análise. Um banco de dados com o paragráfo, a palavra, quantas vezes esta apareceu e o livro que ela pertence.
+
+#### Criando nossa matriz esparsa
+
+Antes de criarmos, vamos aplicar mais um filtro. Utilizaremos o lexicon-PT para filtrar apenas as palavras que tem cadastradas algum valor de sentimento ou polaridade. Desta forma, podemos ver se o agrupamento formado entre os livros diz respeito também ao sentimento expresso nos paragráfos pela palavra de maior `tf-idf`.
+
+```{r warning = FALSE, message = FALSE} 
+
+sentimentos <- oplexicon_v3.0
+
+colnames(sentimentos)[1] <- "word"
+
+``` 
+
+Enfim, realizaremos o tf_idf como nossa medida de distinção entre os bancos de dados. Para saber sobre esta medida é interessante que se leia o seguinte [link](https://cran.r-project.org/web/packages/tidytext/vignettes/tf_idf.html).
+
+```{r warning = FALSE, message = FALSE} 
+
+aux1 <- aux %>% 
+  ungroup() %>% 
+  inner_join(sentimentos) %>% 
+  bind_tf_idf(word, book, n) %>% 
+  group_by(book) %>% 
+  top_n(200,tf_idf) %>% 
+  distinct(word,paragrafo, tf_idf, .keep_all = TRUE) 
+  
+# Criando nossa matriz esparsas, onde as linhas são os paragráfos, as colunas são as palavras e o preenchimeno é o nosso tf_idf
+
+sparse_words <- aux1 %>%
+  cast_sparse(paragrafo, word, tf_idf)
+
+sparse_words1 <- aux1 %>%
+  cast_sparse(paragrafo, word, tf_idf) %>%
+  as.matrix() %>% 
+  as.tibble() %>% 
+  distinct()
+
+``` 
+
+#### RTSNE: 
+
+O pacote para criação do `t-SNE` no R é o `RTSNE`. Neste, devemos escolher o número de dimensões desejadas e a perplexidade final. É interessante que se teste alguns valores, aqui será apresentado aquele que julguei mais pertinente por separar bem as palavras.
+
+É interessante que se teste alguns outros valores e perceba como os dados se distribuem a depender da perplexidade <-> variância.
+
+```{r warning = FALSE, message = FALSE} 
+
+tsne <- Rtsne(sparse_words1, dims = 2, perplexity = 200 , verbose=TRUE, max_iter = 500)
+
+``` 
+
+Criemos um objeto que absorva estas novas coordenadas e as associe ao banco auxiliar: `aux1`. Queremos com isto verificar de forma gráfica, usando o `plotly`, o resultado final.
+
+```{r warning = FALSE, message = FALSE} 
+
+word_vectors <- tsne$Y %>% 
+  as.tibble() %>% 
+  mutate(paragrafo = as.numeric(rownames(sparse_words1))) %>% 
+  left_join(aux1) %>% 
+  mutate(book = as.factor(book)) %>% 
+  mutate(polarity = as.factor(polarity)) %>% 
+  mutate(book_s = fct_cross(book, polarity))
+
+``` 
+
+#### Criando nosso gráfico: 
+
+
+```{r warning = FALSE, message = FALSE} 
+
+pal <- c("darkred", "red","firebrick1","darkblue", "blue", "lightblue")
+
+plot_ly(word_vectors, type = 'scatter', mode = 'markers',
+        text = ~word, color = ~book_s, colors = pal) %>% 
+  add_trace(
+    x = word_vectors$V1,
+    y = word_vectors$V2,
+    opacity = 0.9)
+
+``` 
+
+Fica pouca dividido, mas vamos mais a frente e trabalhar a cena do assassinato.
+
+#### Comparando o incomparável: 
+
+Vamos atualizar nossas stopword com o verbo "é" :
+
+```{r warning = FALSE, message = FALSE} 
+
+stop_words <- rbind(stop_words, c("é"))
+
+``` 
+
+Atualizaremos, também, os bancos de dados referentes aos dois livros: 
+
+```{r warning = FALSE, message = FALSE} 
+
+estrangeiro <- x0$data[[1]]
+
+estrangeiro_ <- estrangeiro %>%
+  filter(section == "content0008.xhtml") %>% 
+  tidytext::unnest_tokens(paragraphs, text, token = "paragraphs") %>% 
+  mutate(paragrafo = row_number()) %>% 
+  tidytext::unnest_tokens(word, paragraphs) %>% 
+  anti_join(stop_words, by = "word")  %>% 
+  count(paragrafo, word, sort = TRUE) %>% 
+  mutate(book = "estrangeiro")
+
+id <- max(estrangeiro_$paragrafo)
+
+
+crime <- x1$data[[1]]
+
+crime_ <- crime %>%    
+  filter(section == "Section0008.xhtml") %>% 
+  tidytext::unnest_tokens(paragraphs, text, token = "paragraphs") %>% 
+  mutate(paragrafo = row_number() + id) %>% 
+  tidytext::unnest_tokens(word, paragraphs) %>% 
+  anti_join(stop_words, by = "word")  %>% 
+  count(paragrafo, word, sort = TRUE) %>% 
+  mutate(book = "crime") 
+
+``` 
+
+Coincidentemente, os assassinatos ocorrem na mesma sessão, no capítulo 7. Será uma questão numerológica? Ou apenas a aleatoridade se manisfestando?
+
+```{r warning = FALSE, message = FALSE} 
+
+cap7 <- rbind(estrangeiro_, crime_) 
+
+range(cap7$paragrafo)
+
+```
+
+Criemos, novamente, nosso objeto auxilar e nossa matriz esparsa: 
+
+```{r warning = FALSE, message = FALSE} 
+
+aux <- cap7 %>%
+  filter(!word %in% nomes) %>% 
+  bind_tf_idf(word, book, n) %>% 
+  group_by(book) %>% 
+  distinct(word,paragrafo, n, .keep_all = TRUE) 
+
+table(aux$book)
+
+sparse_words1 <- aux %>%
+  cast_sparse(word, paragrafo, n) %>%
+  as.matrix() %>% 
+  data.frame() %>% 
+  unique()
+
+```
+
+#### Será possível através da redução da dimensão dos dados observar algum agrupamento?
+
+```{r warning = FALSE, message = FALSE} 
+
+
+tsne <- Rtsne(sparse_words1, dims = 2, perplexity= 10 , verbose=TRUE, max_iter = 500)
+
+word_vectors <- tsne$Y %>% 
+  as.tibble() %>% 
+  mutate(word = rownames(sparse_words1)) %>% 
+  left_join(aux) %>% 
+  mutate(book = as.factor(book))
+  
+word2 <- word_vectors %>% 
+  filter(word %in% c("laço", "machado", "cômodo", "crânio", "gritou", "praia", "sol", "silêncio", "árabes", "navalha"))
+
+
+```
+
+
+#### Visualizando os resultados: 
+
+
+```{r warning = FALSE, message = FALSE} 
+
+pal <- c("red", "blue")
+
+plot_ly(word_vectors, type = 'scatter', mode = 'markers', 
+        color = ~book, colors = pal) %>% 
+  add_trace(
+    x = word_vectors$V1,
+    y = word_vectors$V2,
+    text = ~word) %>% 
+  add_annotations(x = word2$V1,
+                  y = word2$V2,
+                  text = word2$word,
+                  xref = "x",
+                  yref = "y",
+                  showarrow = TRUE,
+                  arrowhead = 7,
+                  ax = 20,
+                  ay = -40
+                  )
+
+  
+
+```
+
+Não há separação muito clara, para baixas perplexidades, indicando que pode haver alguma semelhança entre estes capítulos.
