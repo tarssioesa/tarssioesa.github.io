@@ -1,0 +1,785 @@
+---
+title: Validação Cruzada
+author: Tarssio Barreto
+date: '2019-05-21'
+slug: validação-cruzada
+categories: []
+tags: []
+keywords:
+  - tech
+---
+
+<div style="text-align: justify">
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objetivo
+
+Esta pequena apresentação tem como objetivo demonstrar o funcionamento de métodos de validação cruzada utilizando o algoritmo KNN. 
+
+Para isto usaremos o pacote `caret` que nos possibilita criar uma estrutura base para aplicação de algoritmos de aprendizado de máquinas. 
+
+Neste pacote, a modelagem ocorre em "camadas", ou seja, configuramos uma camada de entrada de dados, outra camada para pré-processamento de dados e outra para a validação cruzada. É possível, também, realizar o afunilamento dos parâmetros a serem determinados, conseguindo maior precisão na determinação destes e no resultado final, porém não será o foco deste breve documento.
+
+Nesta demonstração será utilizado os dados referentes a classificação do uso doméstico de água. Para tornar mais didático será utilizado, apenas, as categórias referentes ao uso de chuveiro, bacia e torneira interna.
+
+Serão, também, simulados, a partir destes dados, três diferentes tipos de bancos de dados:
+
+a) Neste primeiro, haverá uma amostra composta de mil unidades de cada uma das categorias;
+
+b) Neste, a amostra é de 10 observações de cada uma destas;
+
+c) No último, haverá 50 observações de chuveiro e bacia, porém, apenas 20 de torneira interna.
+
+Queremos, por fim, comparar a performace dos métodos de validação cruzada para cada um destes. Os métodos utilizados serão o de `Boostrap`, `k folds` e `Repeated k folds`.
+
+Por fim, será comparado o tempo de computação quando o método é o `Repeated k folds` versus `Leave One Out`.
+
+```{r warning= FALSE}
+
+# Bibliotecas
+
+require(caret)
+require(tidyverse)
+require(profvis)
+require(gridExtra)
+
+```
+
+### Carregando dados
+
+```{r warning= FALSE}
+
+data <- load("C:/Users/tarss/Desktop/LIME_AGUA/cross-validation/cross/data_041218_1138.RData")
+
+```
+
+
+### Exemplo A
+
+#### Obtendo a amostragem desejada: 
+
+```{r message=FALSE, warning=FALSE}
+
+# Criando amostragem
+
+set.seed(1)
+
+dados <- features_atual %>% 
+  filter(categoria %in% c("Bacia", "Chuveiro", "Torneira Interna")) %>% 
+  filter(casa == "B")
+
+dados$categoria <- fct_drop(dados$categoria)  # Removendo as categórias não utilizadas
+
+sample <- dados %>%
+  group_by(categoria) %>%
+  sample_n(1000) %>%  # Escolhendo 1000 observações de cada
+  select(-c(10:18)) %>% 
+  na.omit()
+
+head(sample)
+
+```
+
+#### Criando o grupo de treino e de teste:
+
+```{r warning= FALSE}
+
+# Definindo Split
+
+split=0.80
+
+trainIndex <- createDataPartition(sample$categoria, p=split, list=FALSE)
+
+# Separando 
+
+data_train <- sample[ trainIndex,]
+
+data_test <- sample[-trainIndex,]
+
+```
+
+#### Com Bootstrap
+
+```{r warning= FALSE}
+
+model <- train(categoria ~ ., 
+               data = data_train,
+               method = "knn",
+               preProcess = c("center", "scale"),
+               tuneLength = 10, 
+               trControl = trainControl(method = "boot"))
+
+model
+
+# Armazenando o número ótimo de vizinhos
+
+k1 <- model$finalModel$k
+```
+
+Obtido, então, a melhor estimativa de vizinhos próximos com o bootstrap, será avaliada a acurácia deste modelo aplicado ao teste:
+
+```{r warning= FALSE}
+
+# Realizando a predição para o teste
+
+predictions <- predict(model, data_test)
+
+# Observando os resultados
+
+confusionMatrix(predictions, data_test$categoria) 
+
+aux <- confusionMatrix(predictions, data_test$categoria)
+
+# Armazenando para futuras comparações
+
+acc1 <- aux$overall[1]
+
+```
+
+#### k-fold 
+
+```{r warning= FALSE}
+
+model2 <- train(categoria ~ ., 
+      data = data_train,
+      method = "knn",
+      preProcess = c("center", "scale"),
+      tuneLength = 10, 
+      trControl = trainControl(method="cv", number=10))
+
+model2
+
+# Armazenando o número ótimo de vizinhos
+
+k2 <- model2$finalModel$k
+
+```
+
+Observando, então, os resultados para o conjunto de dados do teste: 
+
+```{r warning= FALSE}
+
+# Realizando a predição para os dados de teste
+
+predictions <- predict(model2, data_test)
+
+# Observando os resultados
+
+confusionMatrix(predictions, data_test$categoria) 
+
+aux <- confusionMatrix(predictions, data_test$categoria)
+
+# Armazenando 
+
+acc2 <- aux$overall[1]
+
+```
+
+
+#### Repeated k-fold Cross Validation 
+
+Repetiremos o mesmo feito para o "repeated k-fold"
+
+```{r warning= FALSE}
+
+model3 <- train(categoria ~ ., 
+               data = data_train,
+               method = "knn",
+               preProcess = c("center", "scale"),
+               tuneLength = 10, 
+               trControl = trainControl(method="repeatedcv", number=10, repeats=10))
+
+
+model3
+
+
+k3 <- model3$finalModel$k
+
+```
+
+Observando, então, os resultados para o grupo de testes: 
+
+```{r warning= FALSE}
+
+# Predição
+
+predictions <- predict(model3, data_test)
+
+# Resultados
+
+confusionMatrix(predictions, data_test$categoria) 
+
+aux <- confusionMatrix(predictions, data_test$categoria)
+
+acc3 <- aux$overall[1]
+
+```
+
+#### Comparações
+
+A primeira comparação, será aquela de vizinhos próximos: 
+
+```{r warning= FALSE}
+
+metodos <- c("bootstrap", "k-folds", "rep. k-folds")
+
+k <- cbind(k1,k2,k3)
+
+colnames(k) <- metodos
+
+k
+
+```
+
+Outra comparação, de grande importância, versa sobre a distribuição da acurácia (boxplot) de cada um dos métodos: 
+
+```{r warning= FALSE}
+
+boxplot(model[["resample"]][["Accuracy"]], model2[["resample"]][["Accuracy"]], model3[["resample"]][["Accuracy"]])
+
+```
+
+Por fim, comparando a acurácia do teste: 
+
+```{r warning= FALSE}
+
+acc <- cbind(acc1, acc2, acc3)
+
+colnames(acc) <- metodos
+
+acc
+
+```
+
+É interessante observar que o modelo de repetidos k-folds possui melhores resultados quanto a acurácia do teste e tem o menor número ótimos de vizinhos, sendo um modelo mais simples quando comparado aos demais. 
+
+Pontua-se, também, que o bootstrap é o modelo com os piores valores de acurácia, quando se observa os conjuntos de validação cruzada, enquanto que os repetidos k-folds apresentam grande variabilidade, mas bom resultado mediano.
+
+
+
+
+# Exemplo B
+
+Neste exemplo há menos dados, 10 de cada uma dos métodos, observaremos, como os métodos de validação cruzadas reagirão.
+
+### Ajustando a amostragem: 
+
+```{r warning= FALSE}
+
+set.seed(1)
+
+dados <- features_atual %>% 
+  filter(categoria %in% c("Bacia", "Chuveiro", "Torneira Interna" )) %>% 
+  filter(casa == "B")
+
+dados$categoria <- fct_drop(dados$categoria)
+
+sample <- dados %>%
+  group_by(categoria) %>%
+  sample_n(10) %>% 
+  select(-c(10:18))
+
+
+# Definindo Split
+
+split=0.80
+
+trainIndex <- createDataPartition(sample$categoria, p=split, list=FALSE)
+
+data_train <- sample[ trainIndex,]
+
+data_test <- sample[-trainIndex,]
+
+
+```
+### Com Bootstrap
+
+```{r warning= FALSE}
+
+model <- train(categoria ~ ., 
+               data = data_train,
+               method = "knn",
+               preProcess = c("center", "scale"),
+               tuneLength = 10, 
+               trControl = trainControl(method = "boot"))
+
+model
+
+# Armazenando o número ótimo de vizinhos
+
+k1 <- model$finalModel$k
+```
+
+Obtido, então, a melhor estimativa de vizinhos próximos com o bootstrap, para o exemplo B, será avaliada a acurácia deste modelo aplicado ao teste:
+
+```{r warning= FALSE}
+
+# Realizando a predição para o teste
+
+predictions <- predict(model, data_test)
+
+# Observando os resultados
+
+confusionMatrix(predictions, data_test$categoria) 
+
+aux <- confusionMatrix(predictions, data_test$categoria)
+
+# Armazenando para futuras comparações
+
+acc1 <- aux$overall[1]
+
+```
+
+
+### k-fold 
+
+```{r warning= FALSE}
+
+model2 <- train(categoria ~ ., 
+      data = data_train,
+      method = "knn",
+      preProcess = c("center", "scale"),
+      tuneLength = 10, 
+      trControl = trainControl(method="cv", number=10))
+
+model2
+
+# Armazenando o número ótimo de vizinhos
+
+k2 <- model2$finalModel$k
+
+```
+
+Observando, então, os resultados para o conjunto de dados do teste: 
+
+```{r warning= FALSE}
+
+# Realizando a predição para os dados de teste
+
+predictions <- predict(model2, data_test)
+
+# Observando os resultados
+
+confusionMatrix(predictions, data_test$categoria) 
+
+aux <- confusionMatrix(predictions, data_test$categoria)
+
+# Armazenando 
+
+acc2 <- aux$overall[1]
+
+```
+
+
+### Repeated k-fold Cross Validation 
+
+Repetiremos o mesmo feito para o "repeated k-fold"
+
+```{r warning= FALSE}
+
+model3 <- train(categoria ~ ., 
+               data = data_train,
+               method = "knn",
+               preProcess = c("center", "scale"),
+               tuneLength = 10, 
+               trControl = trainControl(method="repeatedcv", number=10, repeats=10))
+
+
+model3
+
+
+k3 <- model3$finalModel$k
+
+```
+
+Observando, então, os resultados para o grupo de testes: 
+
+```{r warning= FALSE}
+
+# Predição
+
+predictions <- predict(model3, data_test)
+
+# Resultados
+
+confusionMatrix(predictions, data_test$categoria) 
+
+aux <- confusionMatrix(predictions, data_test$categoria)
+
+acc3 <- aux$overall[1]
+
+```
+
+### Comparações
+
+#### Comparando o "k" ótimo: 
+
+A primeira comparação, será aquela de vizinhos próximos: 
+
+```{r warning= FALSE}
+
+metodos <- c("bootstrap", "k-folds", "rep. k-folds")
+
+k <- cbind(k1,k2,k3)
+
+colnames(k) <- metodos
+
+k
+
+```
+
+Outra comparação, de grande importância, versa sobre a distribuição da acurácia (boxplot) de cada um dos métodos: 
+
+```{r warning= FALSE}
+
+boxplot(model[["resample"]][["Accuracy"]], model2[["resample"]][["Accuracy"]], model3[["resample"]][["Accuracy"]])
+
+```
+
+Por fim, comparando a acurácia do teste: 
+
+```{r warning= FALSE}
+
+acc <- cbind(acc1, acc2, acc3)
+
+colnames(acc) <- metodos
+
+acc
+
+```
+
+Uma vez reduzido o número de observações, também são diminuido o número de vizinhos próximos considerados no knn. Outra questão visível diz respeito a distribuição da acurácia nos dados de treino que é igual para o k-fold e para os repetidos k-folds, consequência, também, da baixa quantidade de observações.
+
+Porém, novamente, os repetidos k-folds demonstraram melhores resultados frente aos dados de treino. Enquanto que os resultados do boostrap e do k-folds são parecidos.
+
+
+### Exemplo C
+
+# Criando amostragem
+
+
+```{r warning= FALSE}
+
+set.seed(1)
+
+dados <- features_atual %>% 
+  filter(categoria %in% c("Bacia", "Chuveiro")) %>% 
+  filter(casa == "B")
+
+
+sample <- dados %>%
+  group_by(categoria) %>%
+  sample_n(50)
+
+
+dados2 <- features_atual %>% 
+  filter(categoria %in% c("Torneira Interna")) %>% 
+  filter(casa == "B")
+
+sample2 <- dados2 %>%
+  sample_n(10) 
+
+sample_final <- bind_rows(sample, sample2) %>% 
+  select(-c(10:18))
+
+sample_final$categoria <- fct_drop(sample_final$categoria)
+
+```
+
+```{r warning= FALSE}
+
+# Definindo Split
+
+split=0.80
+
+trainIndex <- createDataPartition(sample_final$categoria, p=split, list=FALSE)
+
+data_train <- sample_final[trainIndex,]
+
+data_test <- sample_final[-trainIndex,]
+
+```
+
+### Por Boostrap
+
+```{r warning= FALSE}
+
+model <- train(categoria ~ ., 
+               data = data_train,
+               method = "knn",
+               preProcess = c("center", "scale"),
+               tuneLength = 10, 
+               trControl = trainControl(method = "boot"))
+
+model
+
+# Armazenando o número ótimo de vizinhos
+
+k1 <- model$finalModel$k
+```
+
+Obtido, então, a melhor estimativa de vizinhos próximos com o bootstrap, para o exemplo B, será avaliada a acurácia deste modelo aplicado ao teste:
+
+```{r warning= FALSE}
+
+# Realizando a predição para o teste
+
+predictions <- predict(model, data_test)
+
+# Observando os resultados
+
+confusionMatrix(predictions, data_test$categoria) 
+
+aux <- confusionMatrix(predictions, data_test$categoria)
+
+# Armazenando para futuras comparações
+
+acc1 <- aux$overall[1]
+
+```
+
+
+### k-fold 
+
+```{r warning= FALSE}
+
+model2 <- train(categoria ~ ., 
+      data = data_train,
+      method = "knn",
+      preProcess = c("center", "scale"),
+      tuneLength = 10, 
+      trControl = trainControl(method="cv", number=10))
+
+model2
+
+# Armazenando o número ótimo de vizinhos
+
+k2 <- model2$finalModel$k
+
+```
+
+Observando, então, os resultados para o conjunto de dados do teste: 
+
+```{r warning= FALSE}
+
+# Realizando a predição para os dados de teste
+
+predictions <- predict(model2, data_test)
+
+# Observando os resultados
+
+confusionMatrix(predictions, data_test$categoria) 
+
+aux <- confusionMatrix(predictions, data_test$categoria)
+
+# Armazenando 
+
+acc2 <- aux$overall[1]
+
+```
+
+
+### Repeated k-fold Cross Validation 
+
+Repetiremos o mesmo feito para o "repeated k-fold"
+
+```{r warning= FALSE}
+
+model3 <- train(categoria ~ ., 
+               data = data_train,
+               method = "knn",
+               preProcess = c("center", "scale"),
+               tuneLength = 10, 
+               trControl = trainControl(method="repeatedcv", number=10, repeats=10))
+
+
+model3
+
+
+k3 <- model3$finalModel$k
+
+```
+
+Observando, então, os resultados para o grupo de testes: 
+
+```{r warning= FALSE}
+
+# Predição
+
+predictions <- predict(model3, data_test)
+
+# Resultados
+
+confusionMatrix(predictions, data_test$categoria) 
+
+aux <- confusionMatrix(predictions, data_test$categoria)
+
+acc3 <- aux$overall[1]
+
+```
+
+### Comparações
+
+#### Comparando o "k" ótimo: 
+
+A primeira comparação, será aquela de vizinhos próximos: 
+
+```{r warning= FALSE}
+
+metodos <- c("bootstrap", "k-folds", "rep. k-folds")
+
+k <- cbind(k1,k2,k3)
+
+colnames(k) <- metodos
+
+k
+
+```
+
+Outra comparação, de grande importância, versa sobre a distribuição da acurácia (boxplot) de cada um dos métodos: 
+
+```{r warning= FALSE}
+
+boxplot(model[["resample"]][["Accuracy"]], model2[["resample"]][["Accuracy"]], model3[["resample"]][["Accuracy"]])
+
+```
+
+Por fim, comparando a acurácia do teste: 
+
+```{r warning= FALSE}
+
+acc <- cbind(acc1, acc2, acc3)
+
+colnames(acc) <- metodos
+
+acc
+
+```
+
+Neste último caso, a despeito de uma boa diferença entre a distribuição das acurácias para os métodos de bootstrap e repetidos k-folds, se obteve o mesmo resultado para os dados de treino.
+
+
+### Comparando tempo de processamento
+
+Nesta última etapa, será utilizado o pacote profvis para visualizar o tempo gasto para realizar a validação cruzada utilizando os métodos: `repeated k-folds` e `Leave One Out`.
+
+Para isto, recriará-se a amostragem feita no exemplo A.
+
+#### Obtendo a amostragem desejada: 
+
+```{r message=FALSE, warning=FALSE}
+
+# Criando amostragem
+
+set.seed(1)
+
+dados <- features_atual %>% 
+  filter(categoria %in% c("Bacia", "Chuveiro", "Torneira Interna")) %>% 
+  filter(casa == "B")
+
+dados$categoria <- fct_drop(dados$categoria)  # Removendo as categórias não utilizadas
+
+sample <- dados %>%
+  group_by(categoria) %>%
+  sample_n(1000) %>%  # Escolhendo 1000 observações de cada
+  select(-c(10:18)) %>% 
+  na.omit()
+
+head(sample)
+
+```
+
+#### Criando o grupo de treino e de teste:
+
+```{r warning= FALSE}
+
+# Definindo Split
+
+split=0.80
+
+trainIndex <- createDataPartition(sample$categoria, p=split, list=FALSE)
+
+# Separando 
+
+data_train <- sample[ trainIndex,]
+
+data_test <- sample[-trainIndex,]
+
+```
+
+#### Rodando novamente o modelo : 
+
+
+#### Repetidos K-Folds: 
+
+```{r warning= FALSE}
+
+model1 <- train(categoria ~ ., 
+               data = data_train,
+               method = "knn",
+               preProcess = c("center", "scale"),
+               tuneLength = 10, 
+               trControl = trainControl(method="repeatedcv", number=10, repeats=10))
+model1
+
+# Testando os resultados obtidos
+
+
+# Predição
+
+predictions <- predict(model1, data_test)
+
+# Resultados
+
+confusionMatrix(predictions, data_test$categoria) 
+
+# Testando o tempo de processamento 
+
+profvis({model1 <- train(categoria ~ ., 
+               data = data_train,
+               method = "knn",
+               preProcess = c("center", "scale"),
+               tuneLength = 10, 
+               trControl = trainControl(method="repeatedcv", number=10, repeats=10))})
+```
+
+
+```{r warning= FALSE}
+
+#### Leave one Out: 
+
+model2 <- train(categoria ~ ., 
+               data = data_train,
+               method = "knn",
+               preProcess = c("center", "scale"),
+               tuneLength = 10, 
+               trControl = trainControl(method="repeatedcv", number=10, repeats=10))
+
+model2
+
+# Testando os resultados obtidos
+
+# Predição
+
+predictions <- predict(model2, data_test)
+
+# Resultados
+
+confusionMatrix(predictions, data_test$categoria) 
+
+
+profvis({model2 <- train(categoria ~ ., 
+               data = data_train,
+               method = "knn",
+               preProcess = c("center", "scale"),
+               tuneLength = 10, 
+               trControl = trainControl(method="repeatedcv", number=10, repeats=10))})
+
+```
+
+
+Interessante observar que ambos métodos levam a resultados semelhantes em tempo semelhantes.
