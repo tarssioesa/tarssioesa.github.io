@@ -163,7 +163,7 @@ Vamos criar um modelo elastic-net cuja familia é binominal, desta forma realiza
 
 model <- glmnet::cv.glmnet(sparse_words, is_camus,
                    family = "binomial",
-                   parallel = TRUE, keep = TRUE)
+                   keep = TRUE)
 ```
 
 Observamos, então, as palavras que mais contribuem para que dado paragráfo seja, ou não, do livro: O Estrangeiro.
