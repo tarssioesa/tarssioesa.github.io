@@ -71,7 +71,7 @@ id <- max(estrangeiro_$paragrafo)
 
 ```
 
-### Crime e Castigo
+### Crime e castigo
 
 ```{r warning = FALSE, message = FALSE}
 
