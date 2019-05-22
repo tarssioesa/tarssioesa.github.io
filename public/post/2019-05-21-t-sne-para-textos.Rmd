@@ -161,7 +161,7 @@ aux1 <- aux %>%
   inner_join(sentimentos) %>% 
   bind_tf_idf(word, book, n) %>% 
   group_by(book) %>% 
-  top_n(200,tf_idf) %>% 
+  top_n(100,tf_idf) %>% 
   distinct(word,paragrafo, tf_idf, .keep_all = TRUE) 
   
 # Criando nossa matriz esparsas, onde as linhas são os paragráfos, as colunas são as palavras e o preenchimeno é o nosso tf_idf

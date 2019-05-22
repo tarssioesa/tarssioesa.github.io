@@ -1,0 +1,237 @@
+---
+title: Elastic-Net binomial para textos
+author: Tarssio Barreto
+date: '2019-05-21'
+slug: elastic-net-binomial-para-textos
+categories: []
+tags: []
+keywords:
+  - tech
+---
+
+## Pacotes que serão utilizados: 
+
+```{r warning = FALSE, message = FALSE}
+
+
+#install.packages("pacman")
+library(pacman)
+
+
+p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widyr, irlba, rsample, glmnet)
+
+``` 
+
+## Ajustes
+
+Começamos, assim como as demais publicações, carregando os ebooks dos livros: "O Estrangeiro" e "Crime e Castigo".
+
+
+```{r warning = FALSE, message = FALSE}
+
+x0 <- epubr::epub("C:/Users/tarss/Desktop/SER/CURO_SER/O Estrangeiro - Albert Camus.epub")
+
+x1 <- epubr::epub("C:/Users/tarss/Desktop/SER/CURO_SER/Crime e Castigo - Fiódor Dostoiévski.epub")
+
+```
+
+## Tratando os textos:
+
+Para os textos em questão vamos contar o numéro de vezes que cada palavra se repete por paragráfo já que nosso objetivo final é criar um modelo quais palavras são fortemente associadas aos parágrafos de cada um dos livros.
+
+### O estrangeiro
+
+
+```{r warning = FALSE, message = FALSE}
+
+estrangeiro <- x0$data[[1]]
+
+
+estrangeiro_ <- estrangeiro %>%
+  tidytext::unnest_tokens(paragraphs, text, token = "paragraphs") %>% 
+  mutate(paragrafo = row_number()) %>% 
+  tidytext::unnest_tokens(word, paragraphs) %>% 
+  anti_join(stop_words, by = "word")  %>% 
+  count(paragrafo, word, sort = TRUE) %>% 
+  mutate(book = "estrangeiro")
+
+id <- max(estrangeiro_$paragrafo)
+
+```
+
+### Crime e Castigo
+
+```{r warning = FALSE, message = FALSE}
+
+crime <- x1$data[[1]]
+
+crime_ <- crime %>%  
+  tidytext::unnest_tokens(paragraphs, text, token = "paragraphs") %>% 
+  mutate(paragrafo = row_number() + id) %>%  # somamos ao id para termos continuidade no id dos paragrafos
+  tidytext::unnest_tokens(word, paragraphs) %>% 
+  anti_join(stop_words, by = "word")  %>% 
+  count(paragrafo, word, sort = TRUE) %>% 
+  mutate(book = "crime") 
+
+```
+
+## Nosso banco de dados final fica: 
+
+```{r warning = FALSE, message = FALSE}
+
+df <- rbind(estrangeiro_, crime_) 
+
+range(df$paragrafo)
+
+## Removendo nomes
+
+
+nomes <- c("raskólnikov", "sônia", "razumíkhin", "ivánova", "pietróvitch", "n", 
+           "catierina", "dúnia", "svidrigáilov", "porfiri", "piotr", "pulkhéria", 
+           "t", "avdótia", "ródia", "románovna", "rodíon", "lújin", "atieksándrovna",
+           "dúnietchka", "zóssimov", "zamiótov", "marfa", "sófia", "semeónovna",                "nastácia",
+           "pietróvna", "raskólnikovnn", "amália", "liebeziátnikov", "raimundo",                 "masson", "u", 
+           "perez", "manuel", "meursault", "ivánovna", "alieksándrovna", "lisavieta",             "ei", "capítulo",
+           "19", "si", "alguma", "agora", "jeito", "instalamo", "ora", "algum", "há",            "ainda", "descemos", 
+           "respondi","instante", "bocadinho", "soubera", "ah", "vou")
+
+
+aux <- df %>%
+  filter(!word %in% nomes) 
+
+```
+
+## Treino e Teste
+
+Agora utilizaremos o pacote `rsample` para dividir nosso banco de dados final em treino e teste para que possamos realizar a modelagem e testá-la a seguir.
+
+
+```{r warning = FALSE, message = FALSE}
+
+books_split <- aux %>%
+  select(paragrafo, book) %>%
+  initial_split()
+
+train_data <- training(books_split)
+test_data <- testing(books_split)
+
+```
+
+## Matriz Esparsa
+
+Como todas as postagens anteriores, criaremos, também, nossa matriz esparsa na qual as linhas são representadas pelos paragráfos, as colunas pelas palavras e são preenchidas pelo número de vezes que cada palavra aparece em cada um dos paragráfos.
+
+
+```{r warning = FALSE, message = FALSE}
+
+sparse_words <- aux %>%
+  inner_join(train_data) %>%
+  cast_sparse(paragrafo, word, n)
+
+word_rownames <- as.integer(rownames(sparse_words))
+
+```
+
+
+## Modelando os dados de treino
+
+```{r warning = FALSE, message = FALSE}
+
+model_df <- train_data %>% 
+  filter(paragrafo %in% word_rownames) %>% 
+  distinct()
+
+```
+
+
+##  Criando uma variável que tem valores 0 e 1 para ser ou não o livro estrangeiro: 
+
+Neste caso, estamos criando nosso Y (variável binária que queremos modelar)
+
+```{r warning = FALSE, message = FALSE}
+
+is_camus <- model_df$book == "estrangeiro"
+
+```
+
+## Elastic-net Binomial
+
+Vamos criar um modelo elastic-net cuja familia é binominal, desta forma realizamos algo muito parecido com a regressão logistica, mas com as vantagens de seleção de variáveis dada pelo elastic-net.
+
+
+```{r warning = FALSE, message = FALSE}
+
+model <- glmnet::cv.glmnet(sparse_words, is_camus,
+                   family = "binomial",
+                   parallel = TRUE, keep = TRUE)
+```
+
+Observamos, então, as palavras que mais contribuem para que dado paragráfo seja, ou não, do livro: O Estrangeiro.
+
+Como palavras que tem maior probabilidade de pertencer a um paragráfo do livro Estrangeiro temos: `aborrecia`, `àrabe` e `alterada`. Todas referentes ao capítulo do assassinato do árabe na praia por parte do Mersault. 
+
+Por outro lado, as palavras com as menores probabilidades são: `senhor`, `gritou` e `pronunciou`. A palavra senhor é um tratamento MUITO utilizado no livro, principalmente, por uma questão de sentimento de inferioridade que o personagem de Crime e Castigo tem. Gritou, por sua vez, é uma palavra muito marcante da cena na qual este personagem assassina a machadadas uma senhora de idade.
+
+## Testando e Validando
+
+Para validar um modelo, devemos ver o quão bem este é capaz de generalizar a predição para os valores de teste. Pegaremos nosso conjunto de teste, retornaremos o intercepto e os valores estimados e aplicaremos isto nos dados de teste para retornar a probabilidade de determinado paragráfo pertencer ao livro do Albert Camus.
+
+```{r warning = FALSE, message = FALSE}
+
+# Encontrando o intercepto
+
+
+intercept <- coefs %>%
+  filter(term == "(Intercept)") %>%
+  pull(estimate)
+
+# Realizando a classificação, ou seja, qual a probabilidade de tal paragráfo, do grupo de teste, ser do livro "O Estrangeiro"
+
+classifications <- aux %>%
+  inner_join(test_data) %>%
+  inner_join(coefs, by = c("word" = "term")) %>%
+  group_by(paragrafo) %>%
+  summarize(score = sum(estimate)) %>%
+  mutate(probability = plogis(intercept + score))  # Retornar a probabilidade 
+
+head(classifications)
+
+```
+
+## Juntando os bancos de dados de classificação e teste:
+
+
+```{r warning = FALSE, message = FALSE}
+
+# Testando os resultados
+
+test_df <- test_data %>% 
+  filter(paragrafo %in% classifications$paragrafo) %>% 
+  distinct()
+
+
+test <- inner_join(classifications,test_df) %>% 
+  mutate(book = as.factor(book))
+
+### Escolhendo 0.5 como threshold para classificação:
+
+test <- test %>%
+  mutate(
+    prediction = case_when(
+      probability > 0.5 ~ "estrangeiro",
+      TRUE ~ "crime"
+    ),
+    prediction = as.factor(prediction))
+
+
+```
+
+## Resultado Final
+
+Temos um modelo de alta acurácia, boa sensitividade e sensibilidade, mesmo não sendo balanceado. Claro, que são dois livros distintos, em contextos distintos, mas é uma aplicação bastante interessante e que abre possibilidade para outras.
+
+```{r warning = FALSE, message = FALSE}
+
+caret::confusionMatrix(test$prediction, test$book)
+
+```
