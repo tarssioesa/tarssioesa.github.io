@@ -24,7 +24,7 @@ p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widy
 
 ## Ajustes
 
-Começamos, assim como as demais publicações, carregando os ebooks dos livros: "O Estrangeiro" e "Crime e Castigo".
+Começamos, assim como as demais publicações, carregando os ebooks dos livros: "O Estrangeiro" e "Crime e Castigo". Estamos trabalhando com eles há três publicações, qualquer coisa, olhem as antigas.
 
 
 ```{r warning = FALSE, message = FALSE}
@@ -41,8 +41,19 @@ Para os textos em questão vamos contar o numéro de vezes que cada palavra se r
 
 ### O estrangeiro
 
+Vamos utilizar as funções do tidytext para ajustar os bancos de dados para aquilo que queremos. Removeremos também as stopwords.
 
 ```{r warning = FALSE, message = FALSE}
+
+# Removendo Stopwords
+stop_words <- stopwords(kind = "pt") %>% 
+  as.tibble()
+
+stop_words <- rbind(stop_words, c("é"))
+
+colnames(stop_words)[1] <- "word"
+
+# ajustando estrangeiro
 
 estrangeiro <- x0$data[[1]]
 
@@ -55,6 +66,7 @@ estrangeiro_ <- estrangeiro %>%
   count(paragrafo, word, sort = TRUE) %>% 
   mutate(book = "estrangeiro")
 
+head(estrangeiro_)
 id <- max(estrangeiro_$paragrafo)
 
 ```
@@ -73,6 +85,8 @@ crime_ <- crime %>%
   count(paragrafo, word, sort = TRUE) %>% 
   mutate(book = "crime") 
 
+head(crime_)
+
 ```
 
 ## Nosso banco de dados final fica: 
@@ -81,9 +95,11 @@ crime_ <- crime %>%
 
 df <- rbind(estrangeiro_, crime_) 
 
+head(df)
+
 range(df$paragrafo)
 
-## Removendo nomes
+## Removendo nomes e outras stopwords que dificultam o entendimento da questão
 
 
 nomes <- c("raskólnikov", "sônia", "razumíkhin", "ivánova", "pietróvitch", "n", 
@@ -103,7 +119,7 @@ aux <- df %>%
 
 ## Treino e Teste
 
-Agora utilizaremos o pacote `rsample` para dividir nosso banco de dados final em treino e teste para que possamos realizar a modelagem e testá-la a seguir.
+Agora utilizaremos o pacote `rsample` para dividir nosso banco de dados final em treino e teste para que possamos realizar a modelagem e testar a sua capacidade de generalização.
 
 
 ```{r warning = FALSE, message = FALSE}
@@ -135,6 +151,8 @@ word_rownames <- as.integer(rownames(sparse_words))
 
 ## Modelando os dados de treino
 
+Carregando os dados de treino:
+
 ```{r warning = FALSE, message = FALSE}
 
 model_df <- train_data %>% 
@@ -144,7 +162,7 @@ model_df <- train_data %>%
 ```
 
 
-##  Criando uma variável que tem valores 0 e 1 para ser ou não o livro estrangeiro: 
+##Criando uma variável que tem valores 0 e 1 para ser ou não o livro estrangeiro: 
 
 Neste caso, estamos criando nosso Y (variável binária que queremos modelar)
 
@@ -158,12 +176,15 @@ is_camus <- model_df$book == "estrangeiro"
 
 Vamos criar um modelo elastic-net cuja familia é binominal, desta forma realizamos algo muito parecido com a regressão logistica, mas com as vantagens de seleção de variáveis dada pelo elastic-net.
 
+O Elastic Net é um modelo regularizado na qual há um sistema de penalidades que busca zerar os valores dos coeficientes de algumas variáveis que possuem pouca influência no modelo final.
 
 ```{r warning = FALSE, message = FALSE}
 
 model <- glmnet::cv.glmnet(sparse_words, is_camus,
                    family = "binomial",
                    keep = TRUE)
+
+model
 ```
 
 Observamos, então, as palavras que mais contribuem para que dado paragráfo seja, ou não, do livro: O Estrangeiro.
@@ -172,11 +193,36 @@ Como palavras que tem maior probabilidade de pertencer a um paragráfo do livro 
 
 Por outro lado, as palavras com as menores probabilidades são: `senhor`, `gritou` e `pronunciou`. A palavra senhor é um tratamento MUITO utilizado no livro, principalmente, por uma questão de sentimento de inferioridade que o personagem de Crime e Castigo tem. Gritou, por sua vez, é uma palavra muito marcante da cena na qual este personagem assassina a machadadas uma senhora de idade.
 
+```{r warning = FALSE, message = FALSE}
+
+coefs <- model$glmnet.fit %>%
+  tidy() %>%
+  filter(lambda == model$lambda.1se)
+
+
+coefs %>%
+  group_by(estimate > 0) %>%
+  top_n(10, abs(estimate)) %>%
+  ungroup() %>%
+  ggplot(aes(fct_reorder(term, estimate), estimate, fill = estimate > 0)) +
+  geom_col(alpha = 0.8, show.legend = FALSE) +
+  coord_flip() +
+  labs(
+    x = NULL,
+    title = "Coefficients that increase/decrease probability the most"
+  ) +
+  theme_minimal()
+
+```
+
+
 ## Testando e Validando
 
 Para validar um modelo, devemos ver o quão bem este é capaz de generalizar a predição para os valores de teste. Pegaremos nosso conjunto de teste, retornaremos o intercepto e os valores estimados e aplicaremos isto nos dados de teste para retornar a probabilidade de determinado paragráfo pertencer ao livro do Albert Camus.
 
 ```{r warning = FALSE, message = FALSE}
+
+
 
 # Encontrando o intercepto
 
@@ -200,6 +246,7 @@ head(classifications)
 
 ## Juntando os bancos de dados de classificação e teste:
 
+Vamos separar as classificações dadas as observações de teste e escolheremos 0.5 como threshold da classicação. Este passo será fundamental para posterior criação da matriz de confusão.
 
 ```{r warning = FALSE, message = FALSE}
 
