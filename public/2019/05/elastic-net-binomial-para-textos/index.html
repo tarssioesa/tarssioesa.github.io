@@ -8,30 +8,22 @@
 <meta name="generator" content="Hugo 0.55.6 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="Tarssio Barreto">
 <meta name="keywords" content="tech">
-<meta name="description" content="PCADe forma muito simples, o PCA tem as seguintes objetivos:
-Reduzir a dimensão dos dados em análise, visando eliminar sobreposições, a partir da combinação linear das variáveis originais.
-Geometricamente, o objetivo do PCA é rotacionar o eixo de um espaço com p dimensões para uma nova posição, na qual os PCs são ordenados pela variância e a covariância entre cada par dos novos eixos é 0.
-Esta técnica é comumente utilizada para visualização dos dados, regressão (PCR, PLS) e estudo de padrões (inclusive em imagens e textos).">
+<meta name="description" content="Pacotes que serão utilizados:#install.packages(&quot;pacman&quot;)library(pacman)p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widyr, irlba, rsample, glmnet)AjustesComeçamos, assim como as demais publicações, carregando os ebooks dos livros: “O Estrangeiro” e “Crime e Castigo”. Estamos trabalhando com eles há três publicações, qualquer coisa, olhem as antigas.
+x0 &lt;- epubr::epub(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/O Estrangeiro - Albert Camus.epub&quot;)x1 &lt;- epubr::epub(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/Crime e Castigo - Fiódor Dostoiévski.epub&quot;)Tratando os textos:Para os textos em questão vamos contar o numéro de vezes que cada palavra se repete por paragráfo já que nosso objetivo final é criar um modelo quais palavras são fortemente associadas aos parágrafos de cada um dos livros.">
 
 
-<meta property="og:description" content="PCADe forma muito simples, o PCA tem as seguintes objetivos:
-Reduzir a dimensão dos dados em análise, visando eliminar sobreposições, a partir da combinação linear das variáveis originais.
-Geometricamente, o objetivo do PCA é rotacionar o eixo de um espaço com p dimensões para uma nova posição, na qual os PCs são ordenados pela variância e a covariância entre cada par dos novos eixos é 0.
-Esta técnica é comumente utilizada para visualização dos dados, regressão (PCR, PLS) e estudo de padrões (inclusive em imagens e textos).">
+<meta property="og:description" content="Pacotes que serão utilizados:#install.packages(&quot;pacman&quot;)library(pacman)p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widyr, irlba, rsample, glmnet)AjustesComeçamos, assim como as demais publicações, carregando os ebooks dos livros: “O Estrangeiro” e “Crime e Castigo”. Estamos trabalhando com eles há três publicações, qualquer coisa, olhem as antigas.
+x0 &lt;- epubr::epub(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/O Estrangeiro - Albert Camus.epub&quot;)x1 &lt;- epubr::epub(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/Crime e Castigo - Fiódor Dostoiévski.epub&quot;)Tratando os textos:Para os textos em questão vamos contar o numéro de vezes que cada palavra se repete por paragráfo já que nosso objetivo final é criar um modelo quais palavras são fortemente associadas aos parágrafos de cada um dos livros.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Introdução ao PC: Parte 1.">
-<meta name="twitter:title" content="Introdução ao PC: Parte 1.">
-<meta property="og:url" content="/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/">
-<meta property="twitter:url" content="/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/">
+<meta property="og:title" content="Elastic-Net binomial para textos">
+<meta name="twitter:title" content="Elastic-Net binomial para textos">
+<meta property="og:url" content="/2019/05/elastic-net-binomial-para-textos/">
+<meta property="twitter:url" content="/2019/05/elastic-net-binomial-para-textos/">
 <meta property="og:site_name" content="Dad2s">
-<meta property="og:description" content="PCADe forma muito simples, o PCA tem as seguintes objetivos:
-Reduzir a dimensão dos dados em análise, visando eliminar sobreposições, a partir da combinação linear das variáveis originais.
-Geometricamente, o objetivo do PCA é rotacionar o eixo de um espaço com p dimensões para uma nova posição, na qual os PCs são ordenados pela variância e a covariância entre cada par dos novos eixos é 0.
-Esta técnica é comumente utilizada para visualização dos dados, regressão (PCR, PLS) e estudo de padrões (inclusive em imagens e textos).">
-<meta name="twitter:description" content="PCADe forma muito simples, o PCA tem as seguintes objetivos:
-Reduzir a dimensão dos dados em análise, visando eliminar sobreposições, a partir da combinação linear das variáveis originais.
-Geometricamente, o objetivo do PCA é rotacionar o eixo de um espaço com p dimensões para uma nova posição, na qual os PCs são ordenados pela variância e a covariância entre cada par dos novos eixos é 0.
-Esta técnica é comumente utilizada para visualização dos dados, regressão (PCR, PLS) e estudo de padrões (inclusive em imagens e textos).">
+<meta property="og:description" content="Pacotes que serão utilizados:#install.packages(&quot;pacman&quot;)library(pacman)p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widyr, irlba, rsample, glmnet)AjustesComeçamos, assim como as demais publicações, carregando os ebooks dos livros: “O Estrangeiro” e “Crime e Castigo”. Estamos trabalhando com eles há três publicações, qualquer coisa, olhem as antigas.
+x0 &lt;- epubr::epub(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/O Estrangeiro - Albert Camus.epub&quot;)x1 &lt;- epubr::epub(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/Crime e Castigo - Fiódor Dostoiévski.epub&quot;)Tratando os textos:Para os textos em questão vamos contar o numéro de vezes que cada palavra se repete por paragráfo já que nosso objetivo final é criar um modelo quais palavras são fortemente associadas aos parágrafos de cada um dos livros.">
+<meta name="twitter:description" content="Pacotes que serão utilizados:#install.packages(&quot;pacman&quot;)library(pacman)p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widyr, irlba, rsample, glmnet)AjustesComeçamos, assim como as demais publicações, carregando os ebooks dos livros: “O Estrangeiro” e “Crime e Castigo”. Estamos trabalhando com eles há três publicações, qualquer coisa, olhem as antigas.
+x0 &lt;- epubr::epub(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/O Estrangeiro - Albert Camus.epub&quot;)x1 &lt;- epubr::epub(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/Crime e Castigo - Fiódor Dostoiévski.epub&quot;)Tratando os textos:Para os textos em questão vamos contar o numéro de vezes que cada palavra se repete por paragráfo já que nosso objetivo final é criar um modelo quais palavras são fortemente associadas aos parágrafos de cada um dos livros.">
 <meta property="og:locale" content="pt-BR">
 
   
@@ -65,14 +57,14 @@ Reduzir a dimensão dos dados em análise, visando eliminar sobreposições, a p
   <meta property="twitter:image" content="https://www.gravatar.com/avatar/2cbd1c8403ef218d99b08637747420f8?s=640">
 
 
-    <title>Introdução ao PC: Parte 1.</title>
+    <title>Elastic-Net binomial para textos</title>
 
     <link rel="icon" href="/favicon.png">
     
 
     
 
-    <link rel="canonical" href="/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/">
+    <link rel="canonical" href="/2019/05/elastic-net-binomial-para-textos/">
 
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
@@ -192,7 +184,7 @@ Reduzir a dimensão dos dados em análise, visando eliminar sobreposições, a p
             <div class="post-header main-content-wrap text-left">
   
     <h1 class="post-title" itemprop="headline">
-      Introdução ao PC: Parte 1.
+      Elastic-Net binomial para textos
     </h1>
   
   
@@ -214,174 +206,273 @@ Reduzir a dimensão dos dados em análise, visando eliminar sobreposições, a p
               
 
 
-<div style="text-align: justify">
-
-<div id="pca" class="section level2">
-<h2>PCA</h2>
-<p>De forma muito simples, o PCA tem as seguintes objetivos:</p>
-<ol style="list-style-type: lower-alpha">
-<li><p>Reduzir a dimensão dos dados em análise, visando eliminar sobreposições, a partir da combinação linear das variáveis originais.</p></li>
-<li><p>Geometricamente, o objetivo do PCA é rotacionar o eixo de um espaço com p dimensões para uma nova posição, na qual os PCs são ordenados pela variância e a covariância entre cada par dos novos eixos é 0.</p></li>
-<li><p>Esta técnica é comumente utilizada para visualização dos dados, regressão (PCR, PLS) e estudo de padrões (inclusive em imagens e textos).</p></li>
-</ol>
-<p>O passo-a-passo para criar o PCA é:</p>
-<ol style="list-style-type: decimal">
-<li><p>Definir a matriz de dados;</p></li>
-<li><p>Calcular o vetor médio dos dados;</p></li>
-<li><p>Subtrair a média de todos os itens;</p></li>
-<li><p>Calcular a matriz de covâriancia;</p></li>
-<li><p>Calcular autovalores e autovetores</p></li>
-</ol>
-</div>
 <div id="pacotes-que-serao-utilizados" class="section level2">
 <h2>Pacotes que serão utilizados:</h2>
 <pre class="r"><code>#install.packages(&quot;pacman&quot;)
 library(pacman)
 
 
-p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widyr, irlba, 
-       Rtsne,plotly)</code></pre>
-<div id="realizando-o-pca-e-analisando-os-resultados" class="section level3">
-<h3>Realizando o PCA e analisando os resultados</h3>
-<div id="carregando-os-dados" class="section level4">
-<h4>Carregando os dados:</h4>
-<pre class="r"><code>dados &lt;- load(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/data_041218_1138.RData&quot;)
-
-dados &lt;- features_atual %&gt;% 
-  group_by(categoria) %&gt;% 
-  dplyr::filter(categoria %in% c(&quot;Torneira Interna&quot;, &quot;Bacia&quot;)) %&gt;% 
-  dplyr::sample_n(1000)
-
-dados$categoria &lt;- forcats::fct_drop(dados$categoria)
-
-
-x &lt;- dados[,c(2:9)]</code></pre>
+p_load(caret, tidyverse, factoextra, epubr, tm, lexiconPT, broom, tidytext, widyr, irlba, rsample, glmnet)</code></pre>
 </div>
-<div id="realizaremos-primeiro-o-pca-atraves-do-passo-a-passo-a-seguir" class="section level4">
-<h4>Realizaremos, primeiro, o PCA através do passo-a-passo a seguir:</h4>
-<ol style="list-style-type: decimal">
-<li>Escalonando os dados:</li>
-</ol>
-<pre class="r"><code>x1 &lt;- scale(x)</code></pre>
-<ol start="2" style="list-style-type: decimal">
-<li>Cálculo da covariância:</li>
-</ol>
-<pre class="r"><code>covariancia &lt;- cov(x1)
+<div id="ajustes" class="section level2">
+<h2>Ajustes</h2>
+<p>Começamos, assim como as demais publicações, carregando os ebooks dos livros: “O Estrangeiro” e “Crime e Castigo”. Estamos trabalhando com eles há três publicações, qualquer coisa, olhem as antigas.</p>
+<pre class="r"><code>x0 &lt;- epubr::epub(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/O Estrangeiro - Albert Camus.epub&quot;)
 
-covariancia</code></pre>
-<pre><code>##           duracao      nmoda    volume   inercia       moda      media
-## duracao 1.0000000 0.91689273 0.7791928 0.1844582 0.14691699 0.13390061
-## nmoda   0.9168927 1.00000000 0.6616528 0.2795798 0.05257201 0.04397017
-## volume  0.7791928 0.66165281 1.0000000 0.3465013 0.58379483 0.58795810
-## inercia 0.1844582 0.27957983 0.3465013 1.0000000 0.31927738 0.31333773
-## moda    0.1469170 0.05257201 0.5837948 0.3192774 1.00000000 0.91005893
-## media   0.1339006 0.04397017 0.5879581 0.3133377 0.91005893 1.00000000
-## pico    0.2394505 0.11012416 0.6175658 0.1794066 0.79166980 0.89269960
-## mediana 0.1385520 0.05113187 0.5963344 0.3487025 0.93681332 0.97219833
-##              pico    mediana
-## duracao 0.2394505 0.13855199
-## nmoda   0.1101242 0.05113187
-## volume  0.6175658 0.59633445
-## inercia 0.1794066 0.34870252
-## moda    0.7916698 0.93681332
-## media   0.8926996 0.97219833
-## pico    1.0000000 0.84891549
-## mediana 0.8489155 1.00000000</code></pre>
-<ol start="3" style="list-style-type: decimal">
-<li>Autovetores e valores:</li>
-</ol>
-<pre class="r"><code>auto &lt;- eigen(covariancia)
-
-auto$vectors # Autovetores</code></pre>
-<pre><code>##            [,1]        [,2]         [,3]        [,4]        [,5]
-## [1,] -0.2262714  0.57486252  0.182626790 -0.01444230 -0.01042984
-## [2,] -0.1818174  0.60446964  0.009277947 -0.06133980  0.58649043
-## [3,] -0.3946588  0.30214115  0.103746959 -0.04859994 -0.76549174
-## [4,] -0.2069312  0.09753486 -0.947487132  0.18197385 -0.05017738
-## [5,] -0.4187341 -0.23012777  0.004483958 -0.58790499  0.07365775
-## [6,] -0.4307294 -0.24855499  0.039462051  0.04803771  0.18721715
-## [7,] -0.4118067 -0.17364071  0.237440717  0.75484338  0.09284042
-## [8,] -0.4321073 -0.24178036 -0.010517846 -0.20693956  0.13538739
-##             [,6]        [,7]        [,8]
-## [1,] -0.20339868  0.73566649 -0.04569684
-## [2,]  0.12815923 -0.48565845  0.03808255
-## [3,]  0.18950564 -0.34327629 -0.01005750
-## [4,] -0.09551898  0.07111807 -0.01098403
-## [5,] -0.62097866 -0.13997817 -0.12416400
-## [6,]  0.46576307  0.14142691 -0.69053652
-## [7,] -0.36022317 -0.12454968  0.14214361
-## [8,]  0.40602643  0.21195804  0.69554117</code></pre>
-<pre class="r"><code>auto$values # Autovalores</code></pre>
-<pre><code>## [1] 4.49166127 2.15763727 0.86811768 0.19745318 0.14605513 0.07234296
-## [7] 0.04611518 0.02061732</code></pre>
+x1 &lt;- epubr::epub(&quot;C:/Users/tarss/Desktop/SER/CURO_SER/Crime e Castigo - Fiódor Dostoiévski.epub&quot;)</code></pre>
 </div>
-<div id="exploraremos-agora-brevemente-alguns-opcoes-de-projecao-do-pca" class="section level4">
-<h4>Exploraremos agora, brevemente, alguns opções de projeção do PCA:</h4>
-<p>Usaremos para isto o pacote <code>factoextra</code>. Primeiramente, vamos construir nosso objeto <code>pca</code></p>
-<pre class="r"><code>x_pca &lt;- prcomp(x, scale = TRUE)
+<div id="tratando-os-textos" class="section level2">
+<h2>Tratando os textos:</h2>
+<p>Para os textos em questão vamos contar o numéro de vezes que cada palavra se repete por paragráfo já que nosso objetivo final é criar um modelo quais palavras são fortemente associadas aos parágrafos de cada um dos livros.</p>
+<div id="o-estrangeiro" class="section level3">
+<h3>O estrangeiro</h3>
+<p>Vamos utilizar as funções do tidytext para ajustar os bancos de dados para aquilo que queremos. Removeremos também as stopwords.</p>
+<pre class="r"><code># Removendo Stopwords
+stop_words &lt;- stopwords(kind = &quot;pt&quot;) %&gt;% 
+  as.tibble()
 
-summary(x_pca)</code></pre>
-<pre><code>## Importance of components:
-##                           PC1    PC2    PC3     PC4     PC5     PC6
-## Standard deviation     2.1194 1.4689 0.9317 0.44436 0.38217 0.26897
-## Proportion of Variance 0.5615 0.2697 0.1085 0.02468 0.01826 0.00904
-## Cumulative Proportion  0.5615 0.8312 0.9397 0.96436 0.98262 0.99166
-##                            PC7     PC8
-## Standard deviation     0.21474 0.14359
-## Proportion of Variance 0.00576 0.00258
-## Cumulative Proportion  0.99742 1.00000</code></pre>
-<pre class="r"><code>x_pca$rotation</code></pre>
-<pre><code>##                PC1         PC2          PC3         PC4         PC5
-## duracao -0.2262714  0.57486252 -0.182626790 -0.01444230  0.01042984
-## nmoda   -0.1818174  0.60446964 -0.009277947 -0.06133980 -0.58649043
-## volume  -0.3946588  0.30214115 -0.103746959 -0.04859994  0.76549174
-## inercia -0.2069312  0.09753486  0.947487132  0.18197385  0.05017738
-## moda    -0.4187341 -0.23012777 -0.004483958 -0.58790499 -0.07365775
-## media   -0.4307294 -0.24855499 -0.039462051  0.04803771 -0.18721715
-## pico    -0.4118067 -0.17364071 -0.237440717  0.75484338 -0.09284042
-## mediana -0.4321073 -0.24178036  0.010517846 -0.20693956 -0.13538739
-##                 PC6         PC7         PC8
-## duracao  0.20339868 -0.73566649 -0.04569684
-## nmoda   -0.12815923  0.48565845  0.03808255
-## volume  -0.18950564  0.34327629 -0.01005750
-## inercia  0.09551898 -0.07111807 -0.01098403
-## moda     0.62097866  0.13997817 -0.12416400
-## media   -0.46576307 -0.14142691 -0.69053652
-## pico     0.36022317  0.12454968  0.14214361
-## mediana -0.40602643 -0.21195804  0.69554117</code></pre>
-<p>É interessante, em momento de exercicio, comparar o obtido através do algoritmo e o resultado da função <code>prcomp</code>.</p>
-<p>É possível perceber, também, que com as três componentes principais podemos explicar cerca de 90% da variância dos dados, reduzindo de forma significativa o numéro de dimensões do nosso problema. Vamos, enfim, explorar a projeção das nossas componentes principais.</p>
-<pre class="r"><code>factoextra::fviz_pca_biplot(x_pca, repel = FALSE)</code></pre>
-<p><img src="/post/2019-05-21-introdução-ao-pc-parte-1_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
-<p>Com o gráfico acima verificamos a direção de alguma das variáveis e como os dados se comportam após em função dos dois primeiros componentes gerados pela PCA. Observamos também que duração e nmoda estão bem correlacionados, assim como moda media, pico e mediana estão entre sí.</p>
-<p>É pertinente para avaliarmos, também, se a relação entre as variáveis, tendo como base o fenômeno real, se mantem nesta projeção criada.</p>
-<p>Podemos, ver também como acontece a projeção, tendo em vista as classificações dos usos domésticos de água:</p>
-<pre class="r"><code>factoextra::fviz_pca_ind(x_pca,
-             label = &quot;none&quot;, # hide individual labels
-             habillage = dados$categoria, # color by groups
-             addEllipses = TRUE # Concentration ellipses
-             )</code></pre>
-<p><img src="/post/2019-05-21-introdução-ao-pc-parte-1_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
-<p>Ao observar, este plot, pode-se perceber que há uma certa definição dos grupos, sendo possível, com métodos como o <code>knn</code> treinar um modelo para determinar qual a categoria de uma nova observação a partir das componentes principais, nas quais a correlação entre as variáveis tende a ser nula.</p>
-<p>Por fim, o PCA também pode ser utilizado para indicar possíveis <code>outliers</code> através do <code>Q contribution</code>. Deve-se, neste momento, realizar um pequeno esforço de abstração para entender que, num caso multivariado, há dois principais tipos de outliers. O primeiro diz respeito a valores aberrantes das variáveis, fora do range considerado aceitável para esta.</p>
-<p>O segundo, e mais interessante no caso do PCA, versa sobre a quebra da correlação, ou seja, mesmo que os dados estejam dentro dos limites aceitáveis, uma dada observação nao respeita a correlação existente entre as variáveis.</p>
-<pre class="r"><code>p &lt;- fviz_pca_ind(x_pca, addEllipses = TRUE, habillage = dados$categoria, ellipse.level=0.95, geom =                           c(&quot;text&quot;,&quot;point&quot;),
-                  repel = FALSE) + xlim(-10, 15) + ylim (-10, 10) + labs(title =&quot;PCA&quot;, x = &quot;PC1&quot;, y = &quot;PC2&quot;)
-p</code></pre>
-<p><img src="/post/2019-05-21-introdução-ao-pc-parte-1_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
-<p>Observando a elipse formada, inferimos a cerca dos <code>outliers</code>. Para selecionar e remover estes valores ditos aberrantes vamos utilizar as seguintes funções:</p>
-<pre class="r"><code>outlier &lt;- which(p$data$contrib &gt; .5)  #podemos utilizar maiores ou menores valores para o Q.
+stop_words &lt;- rbind(stop_words, c(&quot;é&quot;))
 
-outlier</code></pre>
-<pre><code>## [1]   11   57  101  246  260 1278 1605 1974 1979</code></pre>
-<pre class="r"><code>#Removendo os valores: 
+colnames(stop_words)[1] &lt;- &quot;word&quot;
 
-data_pca &lt;- x_pca$x %&gt;% 
-  as.tibble() %&gt;% 
-  slice(-outlier)</code></pre>
-<p>Em publicação posterior veremos como funciona o PCA em texto!</p>
+# ajustando estrangeiro
+
+estrangeiro &lt;- x0$data[[1]]
+
+
+estrangeiro_ &lt;- estrangeiro %&gt;%
+  tidytext::unnest_tokens(paragraphs, text, token = &quot;paragraphs&quot;) %&gt;% 
+  mutate(paragrafo = row_number()) %&gt;% 
+  tidytext::unnest_tokens(word, paragraphs) %&gt;% 
+  anti_join(stop_words, by = &quot;word&quot;)  %&gt;% 
+  count(paragrafo, word, sort = TRUE) %&gt;% 
+  mutate(book = &quot;estrangeiro&quot;)
+
+head(estrangeiro_)</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   paragrafo word         n book       
+##       &lt;int&gt; &lt;chr&gt;    &lt;int&gt; &lt;chr&gt;      
+## 1       146 cão          8 estrangeiro
+## 2       417 maria        6 estrangeiro
+## 3       265 raimundo     5 estrangeiro
+## 4       334 juiz         5 estrangeiro
+## 5       362 cada         5 estrangeiro
+## 6       424 raimundo     5 estrangeiro</code></pre>
+<pre class="r"><code>id &lt;- max(estrangeiro_$paragrafo)</code></pre>
+</div>
+<div id="crime-e-castigo" class="section level3">
+<h3>Crime e Castigo</h3>
+<pre class="r"><code>crime &lt;- x1$data[[1]]
+
+crime_ &lt;- crime %&gt;%  
+  tidytext::unnest_tokens(paragraphs, text, token = &quot;paragraphs&quot;) %&gt;% 
+  mutate(paragrafo = row_number() + id) %&gt;%  # somamos ao id para termos continuidade no id dos paragrafos
+  tidytext::unnest_tokens(word, paragraphs) %&gt;% 
+  anti_join(stop_words, by = &quot;word&quot;)  %&gt;% 
+  count(paragrafo, word, sort = TRUE) %&gt;% 
+  mutate(book = &quot;crime&quot;) 
+
+head(crime_)</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   paragrafo word          n book 
+##       &lt;int&gt; &lt;chr&gt;     &lt;int&gt; &lt;chr&gt;
+## 1      3352 ivánovna     40 crime
+## 2      3332 ivánovna     33 crime
+## 3      3782 senhor       32 crime
+## 4       693 dúnia        29 crime
+## 5      3352 catierina    24 crime
+## 6       693 tudo         21 crime</code></pre>
 </div>
 </div>
+<div id="nosso-banco-de-dados-final-fica" class="section level2">
+<h2>Nosso banco de dados final fica:</h2>
+<pre class="r"><code>df &lt;- rbind(estrangeiro_, crime_) 
+
+head(df)</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   paragrafo word         n book       
+##       &lt;int&gt; &lt;chr&gt;    &lt;int&gt; &lt;chr&gt;      
+## 1       146 cão          8 estrangeiro
+## 2       417 maria        6 estrangeiro
+## 3       265 raimundo     5 estrangeiro
+## 4       334 juiz         5 estrangeiro
+## 5       362 cada         5 estrangeiro
+## 6       424 raimundo     5 estrangeiro</code></pre>
+<pre class="r"><code>range(df$paragrafo)</code></pre>
+<pre><code>## [1]    1 4356</code></pre>
+<pre class="r"><code>## Removendo nomes e outras stopwords que dificultam o entendimento da questão
+
+
+nomes &lt;- c(&quot;raskólnikov&quot;, &quot;sônia&quot;, &quot;razumíkhin&quot;, &quot;ivánova&quot;, &quot;pietróvitch&quot;, &quot;n&quot;, 
+           &quot;catierina&quot;, &quot;dúnia&quot;, &quot;svidrigáilov&quot;, &quot;porfiri&quot;, &quot;piotr&quot;, &quot;pulkhéria&quot;, 
+           &quot;t&quot;, &quot;avdótia&quot;, &quot;ródia&quot;, &quot;románovna&quot;, &quot;rodíon&quot;, &quot;lújin&quot;, &quot;atieksándrovna&quot;,
+           &quot;dúnietchka&quot;, &quot;zóssimov&quot;, &quot;zamiótov&quot;, &quot;marfa&quot;, &quot;sófia&quot;, &quot;semeónovna&quot;,                &quot;nastácia&quot;,
+           &quot;pietróvna&quot;, &quot;raskólnikovnn&quot;, &quot;amália&quot;, &quot;liebeziátnikov&quot;, &quot;raimundo&quot;,                 &quot;masson&quot;, &quot;u&quot;, 
+           &quot;perez&quot;, &quot;manuel&quot;, &quot;meursault&quot;, &quot;ivánovna&quot;, &quot;alieksándrovna&quot;, &quot;lisavieta&quot;,             &quot;ei&quot;, &quot;capítulo&quot;,
+           &quot;19&quot;, &quot;si&quot;, &quot;alguma&quot;, &quot;agora&quot;, &quot;jeito&quot;, &quot;instalamo&quot;, &quot;ora&quot;, &quot;algum&quot;, &quot;há&quot;,            &quot;ainda&quot;, &quot;descemos&quot;, 
+           &quot;respondi&quot;,&quot;instante&quot;, &quot;bocadinho&quot;, &quot;soubera&quot;, &quot;ah&quot;, &quot;vou&quot;)
+
+
+aux &lt;- df %&gt;%
+  filter(!word %in% nomes) </code></pre>
+</div>
+<div id="treino-e-teste" class="section level2">
+<h2>Treino e Teste</h2>
+<p>Agora utilizaremos o pacote <code>rsample</code> para dividir nosso banco de dados final em treino e teste para que possamos realizar a modelagem e testar a sua capacidade de generalização.</p>
+<pre class="r"><code>books_split &lt;- aux %&gt;%
+  select(paragrafo, book) %&gt;%
+  initial_split()
+
+train_data &lt;- training(books_split)
+test_data &lt;- testing(books_split)</code></pre>
+</div>
+<div id="matriz-esparsa" class="section level2">
+<h2>Matriz Esparsa</h2>
+<p>Como todas as postagens anteriores, criaremos, também, nossa matriz esparsa na qual as linhas são representadas pelos paragráfos, as colunas pelas palavras e são preenchidas pelo número de vezes que cada palavra aparece em cada um dos paragráfos.</p>
+<pre class="r"><code>sparse_words &lt;- aux %&gt;%
+  inner_join(train_data) %&gt;%
+  cast_sparse(paragrafo, word, n)
+
+word_rownames &lt;- as.integer(rownames(sparse_words))</code></pre>
+</div>
+<div id="modelando-os-dados-de-treino" class="section level2">
+<h2>Modelando os dados de treino</h2>
+<p>Carregando os dados de treino:</p>
+<pre class="r"><code>model_df &lt;- train_data %&gt;% 
+  filter(paragrafo %in% word_rownames) %&gt;% 
+  distinct()</code></pre>
+<p>##Criando uma variável que tem valores 0 e 1 para ser ou não o livro estrangeiro:</p>
+<p>Neste caso, estamos criando nosso Y (variável binária que queremos modelar)</p>
+<pre class="r"><code>is_camus &lt;- model_df$book == &quot;estrangeiro&quot;</code></pre>
+</div>
+<div id="elastic-net-binomial" class="section level2">
+<h2>Elastic-net Binomial</h2>
+<p>Vamos criar um modelo elastic-net cuja familia é binominal, desta forma realizamos algo muito parecido com a regressão logistica, mas com as vantagens de seleção de variáveis dada pelo elastic-net.</p>
+<p>O Elastic Net é um modelo regularizado na qual há um sistema de penalidades que busca zerar os valores dos coeficientes de algumas variáveis que possuem pouca influência no modelo final.</p>
+<pre class="r"><code>model &lt;- glmnet::cv.glmnet(sparse_words, is_camus,
+                   family = &quot;binomial&quot;,
+                   keep = TRUE)
+
+summary(model)</code></pre>
+<pre><code>##            Length Class  Mode     
+## lambda         99 -none- numeric  
+## cvm            99 -none- numeric  
+## cvsd           99 -none- numeric  
+## cvup           99 -none- numeric  
+## cvlo           99 -none- numeric  
+## nzero          99 -none- numeric  
+## name            1 -none- character
+## glmnet.fit     13 lognet list     
+## fit.preval 425300 -none- numeric  
+## foldid       4253 -none- numeric  
+## lambda.min      1 -none- numeric  
+## lambda.1se      1 -none- numeric</code></pre>
+<p>Observamos, então, as palavras que mais contribuem para que dado paragráfo seja, ou não, do livro: O Estrangeiro.</p>
+<p>Como palavras que tem maior probabilidade de pertencer a um paragráfo do livro Estrangeiro temos: <code>aborrecia</code>, <code>àrabe</code> e <code>alterada</code>. Todas referentes ao capítulo do assassinato do árabe na praia por parte do Mersault.</p>
+<p>Por outro lado, as palavras com as menores probabilidades são: <code>senhor</code>, <code>gritou</code> e <code>pronunciou</code>. A palavra senhor é um tratamento MUITO utilizado no livro, principalmente, por uma questão de sentimento de inferioridade que o personagem de Crime e Castigo tem. Gritou, por sua vez, é uma palavra muito marcante da cena na qual este personagem assassina a machadadas uma senhora de idade.</p>
+<pre class="r"><code>coefs &lt;- model$glmnet.fit %&gt;%
+  tidy() %&gt;%
+  filter(lambda == model$lambda.1se)
+
+
+coefs %&gt;%
+  group_by(estimate &gt; 0) %&gt;%
+  top_n(10, abs(estimate)) %&gt;%
+  ungroup() %&gt;%
+  ggplot(aes(fct_reorder(term, estimate), estimate, fill = estimate &gt; 0)) +
+  geom_col(alpha = 0.8, show.legend = FALSE) +
+  coord_flip() +
+  labs(
+    x = NULL,
+    title = &quot;Coefficients that increase/decrease probability the most&quot;
+  ) +
+  theme_minimal()</code></pre>
+<p><img src="/post/2019-05-21-elastic-net-binomial-para-textos_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+<div id="testando-e-validando" class="section level2">
+<h2>Testando e Validando</h2>
+<p>Para validar um modelo, devemos ver o quão bem este é capaz de generalizar a predição para os valores de teste. Pegaremos nosso conjunto de teste, retornaremos o intercepto e os valores estimados e aplicaremos isto nos dados de teste para retornar a probabilidade de determinado paragráfo pertencer ao livro do Albert Camus.</p>
+<pre class="r"><code># Encontrando o intercepto
+
+
+intercept &lt;- coefs %&gt;%
+  filter(term == &quot;(Intercept)&quot;) %&gt;%
+  pull(estimate)
+
+# Realizando a classificação, ou seja, qual a probabilidade de tal paragráfo, do grupo de teste, ser do livro &quot;O Estrangeiro&quot;
+
+classifications &lt;- aux %&gt;%
+  inner_join(test_data) %&gt;%
+  inner_join(coefs, by = c(&quot;word&quot; = &quot;term&quot;)) %&gt;%
+  group_by(paragrafo) %&gt;%
+  summarize(score = sum(estimate)) %&gt;%
+  mutate(probability = plogis(intercept + score))  # Retornar a probabilidade 
+
+head(classifications)</code></pre>
+<pre><code>## # A tibble: 6 x 3
+##   paragrafo  score probability
+##       &lt;int&gt;  &lt;dbl&gt;       &lt;dbl&gt;
+## 1         4  8.10        0.995
+## 2         6  4.61        0.867
+## 3         7 16.7         1.000
+## 4         8  0.834       0.130
+## 5         9 24.7         1.000
+## 6        10 23.5         1.000</code></pre>
+</div>
+<div id="juntando-os-bancos-de-dados-de-classificacao-e-teste" class="section level2">
+<h2>Juntando os bancos de dados de classificação e teste:</h2>
+<p>Vamos separar as classificações dadas as observações de teste e escolheremos 0.5 como threshold da classicação. Este passo será fundamental para posterior criação da matriz de confusão.</p>
+<pre class="r"><code># Testando os resultados
+
+test_df &lt;- test_data %&gt;% 
+  filter(paragrafo %in% classifications$paragrafo) %&gt;% 
+  distinct()
+
+
+test &lt;- inner_join(classifications,test_df) %&gt;% 
+  mutate(book = as.factor(book))
+
+### Escolhendo 0.5 como threshold para classificação:
+
+test &lt;- test %&gt;%
+  mutate(
+    prediction = case_when(
+      probability &gt; 0.5 ~ &quot;estrangeiro&quot;,
+      TRUE ~ &quot;crime&quot;
+    ),
+    prediction = as.factor(prediction))</code></pre>
+</div>
+<div id="resultado-final" class="section level2">
+<h2>Resultado Final</h2>
+<p>Temos um modelo de alta acurácia, boa sensitividade e sensibilidade, mesmo não sendo balanceado. Claro, que são dois livros distintos, em contextos distintos, mas é uma aplicação bastante interessante e que abre possibilidade para outras.</p>
+<pre class="r"><code>caret::confusionMatrix(test$prediction, test$book)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##              Reference
+## Prediction    crime estrangeiro
+##   crime        2013          52
+##   estrangeiro   264         420
+##                                           
+##                Accuracy : 0.885           
+##                  95% CI : (0.8725, 0.8967)
+##     No Information Rate : 0.8283          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.6569          
+##                                           
+##  Mcnemar&#39;s Test P-Value : &lt; 2.2e-16       
+##                                           
+##             Sensitivity : 0.8841          
+##             Specificity : 0.8898          
+##          Pos Pred Value : 0.9748          
+##          Neg Pred Value : 0.6140          
+##              Prevalence : 0.8283          
+##          Detection Rate : 0.7323          
+##    Detection Prevalence : 0.7512          
+##       Balanced Accuracy : 0.8869          
+##                                           
+##        &#39;Positive&#39; Class : crime           
+## </code></pre>
 </div>
 
               
@@ -398,7 +489,7 @@ data_pca &lt;- x_pca$x %&gt;%
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/05/elastic-net-binomial-para-textos/" data-tooltip="Elastic-Net binomial para textos">
+                <a class="post-action-btn btn btn--disabled">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml"></span>
@@ -406,7 +497,7 @@ data_pca &lt;- x_pca$x %&gt;%
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/05/introdu%C3%A7%C3%A3o-ao-pca-parte-2/" data-tooltip="Introdução ao PCA: Parte 2">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/" data-tooltip="Introdução ao PC: Parte 1.">
               
                   <span class="hide-xs hide-sm text-small icon-mr"></span>
                   <i class="fa fa-angle-right"></i>
@@ -424,19 +515,19 @@ data_pca &lt;- x_pca$x %&gt;%
         </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/05/elastic-net-binomial-para-textos/">
               <i class="fa fa-facebook-official"></i>
             </a>
           </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/05/elastic-net-binomial-para-textos/">
               <i class="fa fa-twitter"></i>
             </a>
           </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/05/elastic-net-binomial-para-textos/">
               <i class="fa fa-google-plus"></i>
             </a>
           </li>
@@ -484,7 +575,7 @@ data_pca &lt;- x_pca$x %&gt;%
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/05/elastic-net-binomial-para-textos/" data-tooltip="Elastic-Net binomial para textos">
+                <a class="post-action-btn btn btn--disabled">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml"></span>
@@ -492,7 +583,7 @@ data_pca &lt;- x_pca$x %&gt;%
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/05/introdu%C3%A7%C3%A3o-ao-pca-parte-2/" data-tooltip="Introdução ao PCA: Parte 2">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/" data-tooltip="Introdução ao PC: Parte 1.">
               
                   <span class="hide-xs hide-sm text-small icon-mr"></span>
                   <i class="fa fa-angle-right"></i>
@@ -510,19 +601,19 @@ data_pca &lt;- x_pca$x %&gt;%
         </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/05/elastic-net-binomial-para-textos/">
               <i class="fa fa-facebook-official"></i>
             </a>
           </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/05/elastic-net-binomial-para-textos/">
               <i class="fa fa-twitter"></i>
             </a>
           </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/05/introdu%C3%A7%C3%A3o-ao-pc-parte-1/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/05/elastic-net-binomial-para-textos/">
               <i class="fa fa-google-plus"></i>
             </a>
           </li>
@@ -552,19 +643,19 @@ data_pca &lt;- x_pca$x %&gt;%
   <ul class="share-options">
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F05%2Fintrodu%25C3%25A7%25C3%25A3o-ao-pc-parte-1%2F">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F05%2Felastic-net-binomial-para-textos%2F">
           <i class="fa fa-facebook-official"></i><span>%!(EXTRA string=Facebook)</span>
         </a>
       </li>
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F05%2Fintrodu%25C3%25A7%25C3%25A3o-ao-pc-parte-1%2F">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F05%2Felastic-net-binomial-para-textos%2F">
           <i class="fa fa-twitter"></i><span>%!(EXTRA string=Twitter)</span>
         </a>
       </li>
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F05%2Fintrodu%25C3%25A7%25C3%25A3o-ao-pc-parte-1%2F">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F05%2Felastic-net-binomial-para-textos%2F">
           <i class="fa fa-google-plus"></i><span>%!(EXTRA string=Google&#43;)</span>
         </a>
       </li>
@@ -778,9 +869,9 @@ $(document).ready(function() {
     
       <script>
         var disqus_config = function () {
-          this.page.url = '\/2019\/05\/introdu%C3%A7%C3%A3o-ao-pc-parte-1\/';
+          this.page.url = '\/2019\/05\/elastic-net-binomial-para-textos\/';
           
-            this.page.identifier = '\/2019\/05\/introdu%C3%A7%C3%A3o-ao-pc-parte-1\/'
+            this.page.identifier = '\/2019\/05\/elastic-net-binomial-para-textos\/'
           
         };
         (function() {
