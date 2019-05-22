@@ -105,11 +105,7 @@ range(df$paragrafo)
 nomes <- c("raskólnikov", "sônia", "razumíkhin", "ivánova", "pietróvitch", "n", 
            "catierina", "dúnia", "svidrigáilov", "porfiri", "piotr", "pulkhéria", 
            "t", "avdótia", "ródia", "románovna", "rodíon", "lújin", "atieksándrovna",
-           "dúnietchka", "zóssimov", "zamiótov", "marfa", "sófia", "semeónovna",                "nastácia",
-           "pietróvna", "raskólnikovnn", "amália", "liebeziátnikov", "raimundo",                 "masson", "u", 
-           "perez", "manuel", "meursault", "ivánovna", "alieksándrovna", "lisavieta",             "ei", "capítulo",
-           "19", "si", "alguma", "agora", "jeito", "instalamo", "ora", "algum", "há",            "ainda", "descemos", 
-           "respondi","instante", "bocadinho", "soubera", "ah", "vou")
+           "dúnietchka", "zóssimov", "zamiótov", "marfa", "sófia", "semeónovna", "nastácia","pietróvna", "raskólnikovnn", "amália", "liebeziátnikov", "raimundo", "masson", "u", "perez", "manuel", "meursault", "ivánovna", "alieksándrovna", "lisavieta","ei", "capítulo","19", "si", "alguma", "agora", "jeito", "instalamo", "ora", "algum", "há","ainda", "descemos","respondi","instante", "bocadinho", "soubera", "ah", "vou")
 
 
 aux <- df %>%
