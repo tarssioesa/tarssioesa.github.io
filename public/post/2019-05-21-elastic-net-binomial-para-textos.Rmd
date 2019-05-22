@@ -184,7 +184,7 @@ model <- glmnet::cv.glmnet(sparse_words, is_camus,
                    family = "binomial",
                    keep = TRUE)
 
-model
+summary(model)
 ```
 
 Observamos, então, as palavras que mais contribuem para que dado paragráfo seja, ou não, do livro: O Estrangeiro.
