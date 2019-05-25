@@ -1,0 +1,664 @@
+---
+title: 'Entendendo os sentimentos no Magic: Guilda Selesnya'
+author: Tarssio Barreto
+date: '2019-05-25'
+slug: entendendo-os-sentimentos-no-magic-guilda-selesnya
+categories: []
+tags:
+  - Magic
+keywords:
+  - tech
+---
+
+<script src="/rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
+<script src="/rmarkdown-libs/jquery/jquery.min.js"></script>
+<script src="/rmarkdown-libs/proj4js/proj4.js"></script>
+<link href="/rmarkdown-libs/highcharts/css/motion.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/highcharts/highstock.js"></script>
+<script src="/rmarkdown-libs/highcharts/highcharts-3d.js"></script>
+<script src="/rmarkdown-libs/highcharts/highcharts-more.js"></script>
+<script src="/rmarkdown-libs/highcharts/modules/annotations.js"></script>
+<script src="/rmarkdown-libs/highcharts/modules/broken-axis.js"></script>
+<script src="/rmarkdown-libs/highcharts/modules/data.js"></script>
+<script src="/rmarkdown-libs/highcharts/modules/drilldown.js"></script>
+<script src="/rmarkdown-libs/highcharts/modules/exporting.js"></script>
+<script src="/rmarkdown-libs/highcharts/modules/funnel.js"></script>
+<script src="/rmarkdown-libs/highcharts/modules/heatmap.js"></script>
+<script src="/rmarkdown-libs/highcharts/modules/map.js"></script>
+<script src="/rmarkdown-libs/highcharts/modules/no-data-to-display.js"></script>
+<script src="/rmarkdown-libs/highcharts/modules/offline-exporting.js"></script>
+<script src="/rmarkdown-libs/highcharts/modules/solid-gauge.js"></script>
+<script src="/rmarkdown-libs/highcharts/modules/treemap.js"></script>
+<script src="/rmarkdown-libs/highcharts/plugins/annotations.js"></script>
+<script src="/rmarkdown-libs/highcharts/plugins/draggable-legend.js"></script>
+<script src="/rmarkdown-libs/highcharts/plugins/draggable-points.js"></script>
+<script src="/rmarkdown-libs/highcharts/plugins/export-csv.js"></script>
+<script src="/rmarkdown-libs/highcharts/plugins/grouped-categories.js"></script>
+<script src="/rmarkdown-libs/highcharts/plugins/motion.js"></script>
+<script src="/rmarkdown-libs/highcharts/plugins/pattern-fill-v2.js"></script>
+<script src="/rmarkdown-libs/highcharts/plugins/tooltip-delay.js"></script>
+<script src="/rmarkdown-libs/highcharts/custom/reset.js"></script>
+<script src="/rmarkdown-libs/highcharts/custom/symbols-extra.js"></script>
+<script src="/rmarkdown-libs/highcharts/custom/text-symbols.js"></script>
+<link href="/rmarkdown-libs/fontawesome/font-awesome.min.css" rel="stylesheet" />
+<link href="/rmarkdown-libs/htmlwdgtgrid/htmlwdgtgrid.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/highchart-binding/highchart.js"></script>
+
+
+<div id="pacotes-que-serao-utilizados" class="section level2">
+<h2>Pacotes que serão utilizados:</h2>
+<pre class="r"><code>library(pacman)
+
+p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)</code></pre>
+<p>Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas. Eu, realmente, adoro este evento. Falaria bem mais sobre isto, mas vamos aos objetivos desta publicação.</p>
+<p>Desta vez, vamos através de uma série de publicação analisar tanto as <code>flavors texts</code> quanto os textos de habilidades das cartas do <code>Magic The Gathering</code>. Neste meio do caminho eu queria aproveitar o que foi ensinado pelo Joshua e vou tentar usar o Highchart o máximo de vezes que eu conseguir.</p>
+<p>Nesta primeira publicação, veremos apenas a guilda Selesnya e quais sentimentos atreladas a esta guilda.</p>
+</div>
+<div id="o-conclave-selesnya" class="section level2">
+<h2>O conclave Selesnya</h2>
+<p>A guilda Selesnya se vê como a voz de Mat’Selesnya, uma consciência misteriosa que eles creem ser a manifestação da própria natureza. Todos na guilda são considerados veículos desta voz singular, e buscam expandi-la evangelizando com sua mensagem e agregando membros. A mensagem Selesnya é pessoal, tanto quanto pública: os indivíduos precisam silenciar sua própria consciência para ouvir a vontade de sua mestre de guilda, uma dríade de três cabeças, a transmissora espiritual de Mat’Selesnya.</p>
+<p>Apesar dos Selenya aparentemente serem todos doces e alegres, uma observação mais detalhada mostra o contrário. Muitos cidadãos acham que o Conclave é uma seita, tanto quanto os Rakdos são. Cada membro é um fanático pela causa, e a conformidade não é pedida, mas sim esperada de maneira natural. Ninguém tem certeza se o Conclave realiza lavagem cerebral em alguém ou não, mas muitos membros agem como se eles realmente fizessem.</p>
+<p>O Conclave Selesnya é mais bem descrito como um grupo de amantes da natureza – mas uma natureza habitada por bestas gigantes e druidas poderosos às centenas de milhares. Sua estrutura é descentralizada (ou seja, sem líderes definidos) e seu estilo de vida é muito simples, baseado na harmonia de uns com os outros e com a natureza (ou com o que dela restou), e eles fazem tudo o que podem para passar esta mensagem para todo o mundo.</p>
+</div>
+<div id="adquirindo-os-dados" class="section level2">
+<h2>Adquirindo os dados</h2>
+<p>Os dados aqui utilizados foram adquiridos pelo <a href="https://mtgjson.com/" class="uri">https://mtgjson.com/</a>. Criamos, então, um arquivo .json e fizemos alguns tratamentos nos dados:</p>
+<pre class="r"><code>library(&quot;rjson&quot;)
+
+# Give the input file name to the function.
+
+magic &lt;- fromJSON(file = &quot;C:/Users/tarss/Desktop/Magic Blog/mtg/magic.json&quot;)
+
+magic &lt;- magic$cards
+
+head(magic,1)</code></pre>
+<pre><code>## [[1]]
+## [[1]]$artist
+## [1] &quot;Steve Prescott&quot;
+## 
+## [[1]]$borderColor
+## [1] &quot;black&quot;
+## 
+## [[1]]$colorIdentity
+## [1] &quot;G&quot;
+## 
+## [[1]]$colors
+## [1] &quot;G&quot;
+## 
+## [[1]]$convertedManaCost
+## [1] 6
+## 
+## [[1]]$flavorText
+## [1] &quot;The problem isn&#39;t the indrik&#39;s enthusiasm, it&#39;s Ravnica&#39;s lack of guardrails.&quot;
+## 
+## [[1]]$foreignData
+## [[1]]$foreignData[[1]]
+## [[1]]$foreignData[[1]]$flavorText
+## [1] &quot;Nicht die Zuneigung des Indriks ist das Problem, sondern das Fehlen von Br&lt;fc&gt;stungen in Ravnica.&quot;
+## 
+## [[1]]$foreignData[[1]]$language
+## [1] &quot;German&quot;
+## 
+## [[1]]$foreignData[[1]]$multiverseId
+## [1] 453130
+## 
+## [[1]]$foreignData[[1]]$name
+## [1] &quot;Verschmustes Indrik&quot;
+## 
+## [[1]]$foreignData[[1]]$text
+## [1] &quot;Wenn das Verschmuste Indrik ins Spiel kommt, kannst du es gegen eine Kreatur deiner Wahl, die du nicht kontrollierst, k&lt;e4&gt;mpfen lassen. (Jede der Kreaturen f&lt;fc&gt;gt der anderen Schadenspunkte in H&lt;f6&gt;he ihrer St&lt;e4&gt;rke zu.)&quot;
+## 
+## [[1]]$foreignData[[1]]$type
+## [1] &quot;Kreatur &lt;U+0097&gt; Bestie&quot;
+## 
+## 
+## [[1]]$foreignData[[2]]
+## [[1]]$foreignData[[2]]$flavorText
+## [1] &quot;El problema no es el entusiasmo del indrik, sino la falta de barandillas en R&lt;e1&gt;vnica.&quot;
+## 
+## [[1]]$foreignData[[2]]$language
+## [1] &quot;Spanish&quot;
+## 
+## [[1]]$foreignData[[2]]$multiverseId
+## [1] 453389
+## 
+## [[1]]$foreignData[[2]]$name
+## [1] &quot;Indrik cari&lt;f1&gt;oso&quot;
+## 
+## [[1]]$foreignData[[2]]$text
+## [1] &quot;Cuando el Indrik cari&lt;f1&gt;oso entre al campo de batalla, puedes hacer que luche contra la criatura objetivo que no controlas. (Cada una hace una cantidad de da&lt;f1&gt;o igual a su fuerza a la otra.)&quot;
+## 
+## [[1]]$foreignData[[2]]$type
+## [1] &quot;Criatura &lt;U+0097&gt; Bestia&quot;
+## 
+## 
+## [[1]]$foreignData[[3]]
+## [[1]]$foreignData[[3]]$flavorText
+## [1] &quot;Le probl&lt;e8&gt;me n&#39;est pas l&#39;enthousiasme des indriks, mais le manque de barri&lt;e8&gt;res de Ravnica.&quot;
+## 
+## [[1]]$foreignData[[3]]$language
+## [1] &quot;French&quot;
+## 
+## [[1]]$foreignData[[3]]$multiverseId
+## [1] 453648
+## 
+## [[1]]$foreignData[[3]]$name
+## [1] &quot;Indrik affectueux&quot;
+## 
+## [[1]]$foreignData[[3]]$text
+## [1] &quot;Quand l&#39;Indrik affectueux arrive sur le champ de bataille, vous pouvez faire qu&#39;il se batte contre une cr&lt;e9&gt;ature cibl&lt;e9&gt;e que vous ne contr&lt;f4&gt;lez pas. (Chacune inflige un nombre de blessures &lt;e9&gt;gal &lt;e0&gt; sa force &lt;e0&gt; l&#39;autre.)&quot;
+## 
+## [[1]]$foreignData[[3]]$type
+## [1] &quot;Cr&lt;e9&gt;ature : b&lt;ea&gt;te&quot;
+## 
+## 
+## [[1]]$foreignData[[4]]
+## [[1]]$foreignData[[4]]$flavorText
+## [1] &quot;Il problema non &lt;e8&gt; l&#39;entusiasmo degli indrik, ma la mancanza di barriere di sicurezza di Ravnica.&quot;
+## 
+## [[1]]$foreignData[[4]]$language
+## [1] &quot;Italian&quot;
+## 
+## [[1]]$foreignData[[4]]$multiverseId
+## [1] 453907
+## 
+## [[1]]$foreignData[[4]]$name
+## [1] &quot;Indrik Affettuoso&quot;
+## 
+## [[1]]$foreignData[[4]]$text
+## [1] &quot;Quando l&#39;Indrik Affettuoso entra nel campo di battaglia, puoi farlo lottare con una creatura bersaglio che non controlli. (Ogni creatura infligge all&#39;altra danno pari alla propria forza.)&quot;
+## 
+## [[1]]$foreignData[[4]]$type
+## [1] &quot;Creatura &lt;U+0097&gt; Bestia&quot;
+## 
+## 
+## [[1]]$foreignData[[5]]
+## [[1]]$foreignData[[5]]$flavorText
+## [1] &quot;????????????????????????????????????&quot;
+## 
+## [[1]]$foreignData[[5]]$language
+## [1] &quot;Japanese&quot;
+## 
+## [[1]]$foreignData[[5]]$multiverseId
+## [1] 454166
+## 
+## [[1]]$foreignData[[5]]$name
+## [1] &quot;????????&quot;
+## 
+## [[1]]$foreignData[[5]]$text
+## [1] &quot;??????????????????????????????????????1??????????????????????????????????(????????????????????????????????)&quot;
+## 
+## [[1]]$foreignData[[5]]$type
+## [1] &quot;?????? &lt;U+0097&gt; ????&quot;
+## 
+## 
+## [[1]]$foreignData[[6]]
+## [[1]]$foreignData[[6]]$flavorText
+## [1] &quot;???? ??? ??? ???, ????? ?? ??? ????? ?? ???.&quot;
+## 
+## [[1]]$foreignData[[6]]$language
+## [1] &quot;Korean&quot;
+## 
+## [[1]]$foreignData[[6]]$multiverseId
+## [1] 454425
+## 
+## [[1]]$foreignData[[6]]$name
+## [1] &quot;??? ???&quot;
+## 
+## [[1]]$foreignData[[6]]$text
+## [1] &quot;??? ???? ??? ??? ?, ??? ???? ?? ??? ??? ???. ??? ??? ???? ? ??? ??? ? ? ??. (? ??? ???? ??? ????? ??? ???.)&quot;
+## 
+## [[1]]$foreignData[[6]]$type
+## [1] &quot;?? &lt;U+0097&gt; ??&quot;
+## 
+## 
+## [[1]]$foreignData[[7]]
+## [[1]]$foreignData[[7]]$flavorText
+## [1] &quot;O problema n&lt;e3&gt;o &lt;e9&gt; o entusiasmo do indrik, mas a falta de cercas em Ravnica.&quot;
+## 
+## [[1]]$foreignData[[7]]$language
+## [1] &quot;Portuguese (Brazil)&quot;
+## 
+## [[1]]$foreignData[[7]]$multiverseId
+## [1] 454684
+## 
+## [[1]]$foreignData[[7]]$name
+## [1] &quot;Indrik Afetuoso&quot;
+## 
+## [[1]]$foreignData[[7]]$text
+## [1] &quot;Quando Indrik Afetuoso entra no campo de batalha, voc&lt;ea&gt; pode fazer com que ele lute contra a criatura alvo que voc&lt;ea&gt; n&lt;e3&gt;o controla. (Cada uma causa &lt;e0&gt; outra uma quantidade de dano igual ao pr&lt;f3&gt;prio poder.)&quot;
+## 
+## [[1]]$foreignData[[7]]$type
+## [1] &quot;Criatura &lt;U+0097&gt; Besta&quot;
+## 
+## 
+## [[1]]$foreignData[[8]]
+## [[1]]$foreignData[[8]]$flavorText
+## [1] &quot;???????? ?? ? ?????????? ???????, ? ? ?????????? ????? ?? ??????? ????????? ???????.&quot;
+## 
+## [[1]]$foreignData[[8]]$language
+## [1] &quot;Russian&quot;
+## 
+## [[1]]$foreignData[[8]]$multiverseId
+## [1] 454943
+## 
+## [[1]]$foreignData[[8]]$name
+## [1] &quot;????????????? ??????&quot;
+## 
+## [[1]]$foreignData[[8]]$text
+## [1] &quot;????? ????????????? ?????? ??????? ?? ???? ?????, ?? ?????? ????????? ??? ??????? ? ??????? ????????? ?? ??? ????? ?????????. (??? ??????? ???? ????? ???????????, ?????? ????? ????.)&quot;
+## 
+## [[1]]$foreignData[[8]]$type
+## [1] &quot;???????? &lt;U+0097&gt; ?????&quot;
+## 
+## 
+## [[1]]$foreignData[[9]]
+## [[1]]$foreignData[[9]]$flavorText
+## [1] &quot;???????????,??????????&quot;
+## 
+## [[1]]$foreignData[[9]]$language
+## [1] &quot;Chinese Simplified&quot;
+## 
+## [[1]]$foreignData[[9]]$multiverseId
+## [1] 455202
+## 
+## [[1]]$foreignData[[9]]$name
+## [1] &quot;?????&quot;
+## 
+## [[1]]$foreignData[[9]]$text
+## [1] &quot;??????????,???????????????????(???????????????????)&quot;
+## 
+## [[1]]$foreignData[[9]]$type
+## [1] &quot;?? ~??&quot;
+## 
+## 
+## [[1]]$foreignData[[10]]
+## [[1]]$foreignData[[10]]$flavorText
+## [1] &quot;???????????,??????????&quot;
+## 
+## [[1]]$foreignData[[10]]$language
+## [1] &quot;Chinese Traditional&quot;
+## 
+## [[1]]$foreignData[[10]]$multiverseId
+## [1] 455461
+## 
+## [[1]]$foreignData[[10]]$name
+## [1] &quot;?????&quot;
+## 
+## [[1]]$foreignData[[10]]$text
+## [1] &quot;??????????,???????????????????(???????????????????)&quot;
+## 
+## [[1]]$foreignData[[10]]$type
+## [1] &quot;?? ~??&quot;
+## 
+## 
+## 
+## [[1]]$frameVersion
+## [1] &quot;2015&quot;
+## 
+## [[1]]$hasFoil
+## [1] TRUE
+## 
+## [[1]]$hasNonFoil
+## [1] TRUE
+## 
+## [[1]]$layout
+## [1] &quot;normal&quot;
+## 
+## [[1]]$legalities
+## [[1]]$legalities$commander
+## [1] &quot;Legal&quot;
+## 
+## [[1]]$legalities$duel
+## [1] &quot;Legal&quot;
+## 
+## [[1]]$legalities$frontier
+## [1] &quot;Legal&quot;
+## 
+## [[1]]$legalities$future
+## [1] &quot;Legal&quot;
+## 
+## [[1]]$legalities$legacy
+## [1] &quot;Legal&quot;
+## 
+## [[1]]$legalities$modern
+## [1] &quot;Legal&quot;
+## 
+## [[1]]$legalities$penny
+## [1] &quot;Legal&quot;
+## 
+## [[1]]$legalities$standard
+## [1] &quot;Legal&quot;
+## 
+## [[1]]$legalities$vintage
+## [1] &quot;Legal&quot;
+## 
+## 
+## [[1]]$manaCost
+## [1] &quot;{5}{G}&quot;
+## 
+## [[1]]$mcmId
+## [1] 364122
+## 
+## [[1]]$mcmMetaId
+## [1] 265350
+## 
+## [[1]]$mtgstocksId
+## [1] 41944
+## 
+## [[1]]$multiverseId
+## [1] 452871
+## 
+## [[1]]$name
+## [1] &quot;Affectionate Indrik&quot;
+## 
+## [[1]]$number
+## [1] &quot;121&quot;
+## 
+## [[1]]$originalText
+## [1] &quot;When Affectionate Indrik enters the battlefield, you may have it fight target creature you don&#39;t control. &lt;i&gt;(Each deals damage equal to its power to the other.)&lt;/i&gt;&quot;
+## 
+## [[1]]$originalType
+## [1] &quot;Creature &lt;U+0097&gt; Beast&quot;
+## 
+## [[1]]$power
+## [1] &quot;4&quot;
+## 
+## [[1]]$prices
+## [[1]]$prices$paper
+## [[1]]$prices$paper$`2019-01-23`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-01-30`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-02-06`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-02-13`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-02-20`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-02-27`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-03-06`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-03-13`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-03-20`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-03-27`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-04-03`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-04-10`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-04-17`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-04-24`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-05-01`
+## [1] 0.15
+## 
+## [[1]]$prices$paper$`2019-05-08`
+## [1] 0.15
+## 
+## 
+## 
+## [[1]]$printings
+## [1] &quot;GRN&quot;
+## 
+## [[1]]$purchaseUrls
+## [[1]]$purchaseUrls$cardmarket
+## [1] &quot;https://mtgjson.com/links/6f9db0b16fbecb96&quot;
+## 
+## [[1]]$purchaseUrls$mtgstocks
+## [1] &quot;https://mtgjson.com/links/78d4f16b28674d19&quot;
+## 
+## [[1]]$purchaseUrls$tcgplayer
+## [1] &quot;https://mtgjson.com/links/c7fc0618cb4f5b30&quot;
+## 
+## 
+## [[1]]$rarity
+## [1] &quot;uncommon&quot;
+## 
+## [[1]]$rulings
+## [[1]]$rulings[[1]]
+## [[1]]$rulings[[1]]$date
+## [1] &quot;2018-10-05&quot;
+## 
+## [[1]]$rulings[[1]]$text
+## [1] &quot;You choose the target of the triggered ability as it goes on the stack, but you choose whether the creatures fight as that ability resolves.&quot;
+## 
+## 
+## [[1]]$rulings[[2]]
+## [[1]]$rulings[[2]]$date
+## [1] &quot;2018-10-05&quot;
+## 
+## [[1]]$rulings[[2]]$text
+## [1] &quot;If the target creature is an illegal target when Affectionate Indrik&lt;U+0092&gt;s ability tries to resolve, the ability doesn&lt;U+0092&gt;t resolve. If Affectionate Indrik is no longer on the battlefield, the target creature won&lt;U+0092&gt;t deal or be dealt damage.&quot;
+## 
+## 
+## 
+## [[1]]$scryfallId
+## [1] &quot;b4c8ddc1-d95c-499f-b1d1-f608f8f07b02&quot;
+## 
+## [[1]]$scryfallIllustrationId
+## [1] &quot;005a5eae-3b13-4ba2-bf12-779df63efba0&quot;
+## 
+## [[1]]$scryfallOracleId
+## [1] &quot;88aa032d-dc11-4cae-81f3-ce66353963e0&quot;
+## 
+## [[1]]$subtypes
+## [1] &quot;Beast&quot;
+## 
+## [[1]]$supertypes
+## list()
+## 
+## [[1]]$tcgplayerProductId
+## [1] 176678
+## 
+## [[1]]$tcgplayerPurchaseUrl
+## [1] &quot;https://mtgjson.com/links/c7fc0618cb4f5b30&quot;
+## 
+## [[1]]$text
+## [1] &quot;When Affectionate Indrik enters the battlefield, you may have it fight target creature you don&#39;t control. (Each deals damage equal to its power to the other.)&quot;
+## 
+## [[1]]$toughness
+## [1] &quot;4&quot;
+## 
+## [[1]]$type
+## [1] &quot;Creature &lt;U+0097&gt; Beast&quot;
+## 
+## [[1]]$types
+## [1] &quot;Creature&quot;
+## 
+## [[1]]$uuid
+## [1] &quot;baf79fdc-9584-5d1d-a552-387e8e420f39&quot;</code></pre>
+<p>Para cada carta temos uma avalanche de informação, mas queremos usar apenas algumas destas variáveis que podem ser conferidas no código a frente:</p>
+<pre class="r"><code># Selecionando as variáveis importantes: 
+
+aux &lt;- magic %&gt;%
+  map(extract, c(&quot;number&quot;, &quot;flavorText&quot;, &quot;originalText&quot;, &quot;types&quot;, &quot;name&quot;, &quot;colors&quot;, 
+                 &quot;convertedManaCost&quot;)) %&gt;% 
+  enframe() %&gt;% 
+  unnest()
+
+colnames(aux)[1] &lt;- &quot;id&quot;
+
+# Nosso problema é tentar organizar o nosso arquivo &quot;aux&quot; já que ao observá-lo temos um banco de dados muito desestruturado.
+
+
+seq &lt;- rep(c(&quot;number&quot;, &quot;flavorText&quot;, &quot;originalText&quot;, &quot;Type&quot;, &quot;name&quot;, &quot;color&quot;, &quot;cmc&quot;), nrow(aux)/7) %&gt;% 
+  as.tibble()
+
+GRN &lt;- aux %&gt;%  bind_cols(seq) %&gt;% dcast(id ~ value1) %&gt;% 
+  select(&quot;name&quot;, &quot;number&quot;, &quot;cmc&quot;, &quot;color&quot;, &quot;flavorText&quot;, &quot;originalText&quot;, &quot;Type&quot;) %&gt;% 
+  as.tibble() %&gt;% 
+  mutate(id = as.factor(seq(1:283))) %&gt;% 
+  group_by(id) %&gt;% 
+  mutate(color = toString(color))
+
+
+head(GRN)</code></pre>
+<pre><code>## # A tibble: 6 x 8
+## # Groups:   id [6]
+##   name    number   cmc     color       flavorText originalText Type   id   
+##   &lt;list&gt;  &lt;list&gt;   &lt;list&gt;  &lt;chr&gt;       &lt;list&gt;     &lt;list&gt;       &lt;list&gt; &lt;fct&gt;
+## 1 &lt;chr [~ &lt;chr [1~ &lt;dbl [~ G           &lt;chr [1]&gt;  &lt;chr [1]&gt;    &lt;chr ~ 1    
+## 2 &lt;chr [~ &lt;chr [1~ &lt;dbl [~ G           &lt;NULL&gt;     &lt;chr [1]&gt;    &lt;chr ~ 2    
+## 3 &lt;chr [~ &lt;chr [1~ &lt;dbl [~ R           &lt;chr [1]&gt;  &lt;chr [1]&gt;    &lt;chr ~ 3    
+## 4 &lt;chr [~ &lt;chr [1~ &lt;dbl [~ &quot;c(\&quot;B\&quot;, ~ &lt;chr [1]&gt;  &lt;chr [1]&gt;    &lt;chr ~ 4    
+## 5 &lt;chr [~ &lt;chr [1~ &lt;dbl [~ &quot;c(\&quot;B\&quot;, ~ &lt;chr [1]&gt;  &lt;chr [1]&gt;    &lt;chr ~ 5    
+## 6 &lt;chr [~ &lt;chr [1~ &lt;dbl [~ &quot;c(\&quot;W\&quot;, ~ &lt;NULL&gt;     &lt;chr [1]&gt;    &lt;chr ~ 6</code></pre>
+<p>Apesar da função <code>head</code> não ser bastante útil para mostrar o banco de dados como um todo (aceito sugestões), ela consegue por em evidência uma variável fundamental para esta análise: <code>a identidade de cor de cada carta</code>.</p>
+</div>
+<div id="selecionando-as-cartas-selesnya" class="section level2">
+<h2>Selecionando as cartas Selesnya</h2>
+<p>Primeiro, eu tive que adicionar o resto das cartas que estão no clã Selesnya, mas não possuem a cor verde e branca na sua identidade de cor. Este é um trabalho um pouco chato e tenho pensado em como escalarei o código para resolver o problema para as outras guildas. Ou, talvez, eu vá convidando algumas pessoas para escrever sobre suas guildas favoritas.</p>
+<p>A seguir filtramos de forma a ter apenas as cartas Selesnya.</p>
+<pre class="r"><code>guilda &lt;- unique(GRN$color)
+
+add &lt;- c(&quot;Selesnya Locket&quot;, &quot;Temple Garden&quot;, &quot;Selesnya Guildgate&quot;, &quot;Impervious Greatwurm&quot;,
+         &quot;Sprouting Renewal&quot;, &quot;Venerated Loxodon&quot;, &quot;Arboretum Elemental&quot;, &quot;Conclave Tribunal&quot;,
+         &quot;Flight of Equenauts&quot;, &quot;Ledev Guardian&quot;, &quot;Loxodon Restorer&quot;, &quot;Pack Favor&quot;, &quot;Pause for Reflection&quot;,
+         &quot;Siege Wurm&quot;, &quot;Vernadi Shieldmate&quot;)
+
+Selesnya &lt;- GRN %&gt;% 
+  filter(color == guilda[5] | color == guilda[11] | name %in% add) %&gt;% 
+  filter(flavorText != &quot;NULL&quot;)</code></pre>
+</div>
+<div id="analisando-o-flavor-text" class="section level2">
+<h2>Analisando o Flavor Text:</h2>
+<p>Agora vamos separar os <code>flavors texts</code> das cartas e tentaremos através do “nrc” ver qual tipo de sentimento dominante na guilda e quais são as principais palavras com esta indexação de sentimento. Desta forma, acredito que poderemos ver um resumo da participação da guilda nos eventos anteriores à Guerra da Centelha.</p>
+<pre class="r"><code># Lexicon
+
+nrc_lexicon &lt;- get_sentiments(&quot;nrc&quot;)
+
+# Retomando as palavras: 
+
+selesnya_flavor &lt;- Selesnya %&gt;% 
+  ungroup() %&gt;% 
+  select(flavorText) %&gt;% 
+  unnest_tokens(word, flavorText) %&gt;% 
+  inner_join(nrc_lexicon) 
+
+head(selesnya_flavor)</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   word     sentiment   
+##   &lt;chr&gt;    &lt;chr&gt;       
+## 1 offering trust       
+## 2 hope     anticipation
+## 3 hope     joy         
+## 4 hope     positive    
+## 5 hope     surprise    
+## 6 hope     trust</code></pre>
+<p>Saimos deste momento com algumas palavras e os sentimentos que podem estar associado a elas, mas é preciso um pouco de visualização de dados para compreendermos um pouco da história:</p>
+<pre class="r"><code># Criando o tema Selesnya: 
+
+thm &lt;- hc_theme(
+  chart = list(
+    backgroundColor = &quot;transparent&quot;,
+    divBackgroundImage = &quot;https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/0/08/Selesnya_Logo.png&quot;
+  ))
+
+# Criando o gráfico
+
+
+hchart(selesnya_flavor$sentiment) %&gt;%   
+  hc_title(text = &quot;Selesnya Flavor&quot;, style = list(color = &quot;green&quot;)) %&gt;% 
+  hc_yAxis(labels = list(style = list(color = &quot;black&quot;)),
+           gridLineColor = &quot;#111111&quot;) %&gt;% 
+  hc_xAxis(labels = list(style = list(color = &quot;black&quot;))) %&gt;% 
+  hc_colors(&quot;green&quot;) %&gt;% 
+  hc_add_theme(thm)</code></pre>
+<div id="htmlwidget-1" style="width:100%;height:500px;" class="highchart html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"hc_opts":{"title":{"text":"Selesnya Flavor","style":{"color":"green"}},"yAxis":{"title":{"text":null},"labels":{"style":{"color":"black"}},"gridLineColor":"#111111"},"credits":{"enabled":false},"exporting":{"enabled":false},"plotOptions":{"series":{"turboThreshold":0},"treemap":{"layoutAlgorithm":"squarified"},"bubble":{"minSize":5,"maxSize":25}},"annotationsOptions":{"enabledButtons":false},"tooltip":{"delayForDisplay":10},"xAxis":{"type":"category","labels":{"style":{"color":"black"}}},"series":[{"data":[{"name":"anger","y":4},{"name":"anticipation","y":10},{"name":"disgust","y":4},{"name":"fear","y":5},{"name":"joy","y":6},{"name":"negative","y":12},{"name":"positive","y":9},{"name":"sadness","y":6},{"name":"surprise","y":7},{"name":"trust","y":9}],"type":"column"}],"colors":["green"]},"theme":{"chart":{"backgroundColor":"transparent","divBackgroundImage":"https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/0/08/Selesnya_Logo.png"}},"conf_opts":{"global":{"Date":null,"VMLRadialGradientURL":"http =//code.highcharts.com/list(version)/gfx/vml-radial-gradient.png","canvasToolsURL":"http =//code.highcharts.com/list(version)/modules/canvas-tools.js","getTimezoneOffset":null,"timezoneOffset":0,"useUTC":true},"lang":{"contextButtonTitle":"Chart context menu","decimalPoint":".","downloadJPEG":"Download JPEG image","downloadPDF":"Download PDF document","downloadPNG":"Download PNG image","downloadSVG":"Download SVG vector image","drillUpText":"Back to {series.name}","invalidDate":null,"loading":"Loading...","months":["January","February","March","April","May","June","July","August","September","October","November","December"],"noData":"No data to display","numericSymbols":["k","M","G","T","P","E"],"printChart":"Print chart","resetZoom":"Reset zoom","resetZoomTitle":"Reset zoom level 1:1","shortMonths":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"thousandsSep":" ","weekdays":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]}},"type":"chart","fonts":[],"debug":false},"evals":[],"jsHooks":[]}</script>
+<p>Pausa, para minha primeira vez no hchart, já me sinto encantado. Queria saber como ajustar muitas coisas, mas a frente vou aprendendo. É importante, às vezes, sabe se contentar com o que é capaz de fazer no momento.</p>
+<p>Mas, indo a análise, o bloco de <code>Guilds of Ravnica</code> é um momento pré-guerra, a guilda Selesnya teve a <code>Vitu-Ghazi</code>, a árvore do mundo, danificada e vive um momento cujo grande objetivo é aumentar suas fileiras de guerra e se proteger.</p>
+<p>Visto que falamos de uma guilda que vive uma união regiliosa e que se encontra em um contexto de pré-confronto, é bem condizente que palavras ligadas a <code>ansiedade</code> e <code>fé</code> estejam bastante citada no momento do bloco. Infelizmente, eu não sou um grande conhecer das histórias, mas vou começar a tentar trazer pessoas que sabem mais.</p>
+<p>Quanto as palavras mais utilizadas, temos, principalmente, as palavras: <code>árvore</code>, <code>ódio</code>, <code>esperança</code> e <code>tranquilidade</code>. A palavra ódio que é a que menos está em sintonia com as outras está no flavor da campeã selesnya: <code>Emmara, Soul of the Accord</code>.</p>
+<p><code>"Whatever hatred destroys, a single act of trust can revive"</code></p>
+<p>Mostrando o quanto a guerra é algo aversivo aos Selesnya, tanto que a posição deste, a princípio, era de defender os seus portões e ignorar aquilo que não tangia a eles.</p>
+<pre class="r"><code>sel_flavor &lt;- Corpus(VectorSource(selesnya_flavor$word))
+
+wordcloud(sel_flavor, scale=c(5,0.5), 
+           max.words=7, random.order=FALSE, 
+          rot.per=0.1, use.r.layout=TRUE, 
+          colors=brewer.pal(8, &quot;Dark2&quot;))</code></pre>
+<p><img src="/post/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+<div id="analisando-as-habilidades" class="section level2">
+<h2>Analisando as habilidades:</h2>
+<p>O conclave Selesnya tem suas características muito pautada em criaturas, ou em grandes criaturas devastadoras com muito poder ou em várias criaturas pequenas formando um exército poderoso. As habilidades estão ligadas a convocação de grandes criaturas utilizando as menores para isto e aumentar o poder do exército (homem a homem ou uma ajuda global). Ou seja, as habilidade tem como centro as <code>criaturas</code> e é isto que esperamos perceber ao analisar estas cartas.</p>
+<pre class="r"><code>sel_cloud &lt;- Selesnya %&gt;% 
+  ungroup() %&gt;% 
+  unnest_tokens(word, originalText) %&gt;% 
+  inner_join(nrc_lexicon) 
+
+head(sel_cloud)</code></pre>
+<pre><code>## # A tibble: 6 x 9
+##   name    number  cmc     color    flavorText Type   id    word   sentiment
+##   &lt;list&gt;  &lt;list&gt;  &lt;list&gt;  &lt;chr&gt;    &lt;list&gt;     &lt;list&gt; &lt;fct&gt; &lt;chr&gt;  &lt;chr&gt;    
+## 1 &lt;chr [~ &lt;chr [~ &lt;dbl [~ &quot;c(\&quot;G\~ &lt;chr [1]&gt;  &lt;chr ~ 26    gain   anticipa~
+## 2 &lt;chr [~ &lt;chr [~ &lt;dbl [~ &quot;c(\&quot;G\~ &lt;chr [1]&gt;  &lt;chr ~ 26    gain   joy      
+## 3 &lt;chr [~ &lt;chr [~ &lt;dbl [~ &quot;c(\&quot;G\~ &lt;chr [1]&gt;  &lt;chr ~ 26    gain   positive 
+## 4 &lt;chr [~ &lt;chr [~ &lt;dbl [~ &quot;c(\&quot;G\~ &lt;chr [1]&gt;  &lt;chr ~ 29    battl~ fear     
+## 5 &lt;chr [~ &lt;chr [~ &lt;dbl [~ &quot;c(\&quot;G\~ &lt;chr [1]&gt;  &lt;chr ~ 29    battl~ negative 
+## 6 &lt;chr [~ &lt;chr [~ &lt;dbl [~ &quot;c(\&quot;G\~ &lt;chr [1]&gt;  &lt;chr ~ 29    player negative</code></pre>
+<pre class="r"><code>sel_txt &lt;- Corpus(VectorSource(sel_cloud$word))
+
+wordcloud(sel_txt,  
+          max.words= 12, random.order=FALSE, 
+          rot.per=0.1, use.r.layout=TRUE, 
+          colors=brewer.pal(8, &quot;Dark2&quot;))</code></pre>
+<p><img src="/post/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>E olha lá, como as coisas condizem! A palavra criatura é aquela mais utilizada nas habilidades selesnya, uma vez que as criaturas são alvo ou desencadeiam as habilidades dispostas nesta guilda. Temos, também, em destaque as palavras <code>battlefield</code> e <code>vigilance</code> que corroboram a questão do recrutamento de novos seres para defender os portões desta guilda.</p>
+</div>
+<div id="sentimento-relacionado-as-habilidades" class="section level1">
+<h1>Sentimento relacionado as habilidades:</h1>
+<p>Destaca-se neste caso a palavra <code>fear</code>, eu mesmo acharia amedrontar grandes bestas com alto poder destrutivo convocadas antes da hora por pequenas criaturas que pareciam inofensivas. Este sentimento está ligado, principalmente, as palavras: <code>creature</code> e <code>battlefield</code>.</p>
+<pre class="r"><code>hchart(sel_cloud$sentiment) %&gt;%   
+  hc_title(text = &quot;Selesnya Hability Text&quot;, style = list(color = &quot;green&quot;)) %&gt;% 
+  hc_yAxis(labels = list(style = list(color = &quot;black&quot;)),
+           gridLineColor = &quot;#111111&quot;) %&gt;% 
+  hc_xAxis(labels = list(style = list(color = &quot;black&quot;))) %&gt;% 
+  hc_colors(&quot;green&quot;) %&gt;% 
+  hc_add_theme(thm)</code></pre>
+<div id="htmlwidget-2" style="width:100%;height:500px;" class="highchart html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2">{"x":{"hc_opts":{"title":{"text":"Selesnya Hability Text","style":{"color":"green"}},"yAxis":{"title":{"text":null},"labels":{"style":{"color":"black"}},"gridLineColor":"#111111"},"credits":{"enabled":false},"exporting":{"enabled":false},"plotOptions":{"series":{"turboThreshold":0},"treemap":{"layoutAlgorithm":"squarified"},"bubble":{"minSize":5,"maxSize":25}},"annotationsOptions":{"enabledButtons":false},"tooltip":{"delayForDisplay":10},"xAxis":{"type":"category","labels":{"style":{"color":"black"}}},"series":[{"data":[{"name":"anger","y":4},{"name":"anticipation","y":10},{"name":"disgust","y":11},{"name":"fear","y":16},{"name":"joy","y":11},{"name":"negative","y":16},{"name":"positive","y":22},{"name":"sadness","y":3},{"name":"trust","y":12}],"type":"column"}],"colors":["green"]},"theme":{"chart":{"backgroundColor":"transparent","divBackgroundImage":"https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/0/08/Selesnya_Logo.png"}},"conf_opts":{"global":{"Date":null,"VMLRadialGradientURL":"http =//code.highcharts.com/list(version)/gfx/vml-radial-gradient.png","canvasToolsURL":"http =//code.highcharts.com/list(version)/modules/canvas-tools.js","getTimezoneOffset":null,"timezoneOffset":0,"useUTC":true},"lang":{"contextButtonTitle":"Chart context menu","decimalPoint":".","downloadJPEG":"Download JPEG image","downloadPDF":"Download PDF document","downloadPNG":"Download PNG image","downloadSVG":"Download SVG vector image","drillUpText":"Back to {series.name}","invalidDate":null,"loading":"Loading...","months":["January","February","March","April","May","June","July","August","September","October","November","December"],"noData":"No data to display","numericSymbols":["k","M","G","T","P","E"],"printChart":"Print chart","resetZoom":"Reset zoom","resetZoomTitle":"Reset zoom level 1:1","shortMonths":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"thousandsSep":" ","weekdays":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]}},"type":"chart","fonts":[],"debug":false},"evals":[],"jsHooks":[]}</script>
+<p>Outra questão interessante é o que as palavras <code>white</code> e <code>green</code> se relacionam:</p>
+<pre class="r"><code>sel_filter &lt;- sel_cloud %&gt;% 
+  filter(word %in% c(&quot;white&quot;, &quot;green&quot;)) %&gt;% 
+  mutate(to = word) %&gt;% 
+  mutate(from = sentiment) %&gt;% 
+  select(to, from)
+
+
+head(sel_filter)  </code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   to    from        
+##   &lt;chr&gt; &lt;chr&gt;       
+## 1 green joy         
+## 2 green positive    
+## 3 green trust       
+## 4 white anticipation
+## 5 white joy         
+## 6 white positive</code></pre>
+<pre class="r"><code>g &lt;- graph_from_data_frame(sel_filter)
+
+plot(g)</code></pre>
+<p><img src="/post/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>Interessante, por fim, temos a relação entre estas palavras e os sentimentos atrelados. A única não intersecção diz respeito a palavra ao sentimento de <code>anticipation</code> que está ligado apenas a palavra branca. Esta boa combinação entre os sentimentos das cores corroborá a ideia de que o Conclave Selesnya é uma guilda composta por cores naturalmente alinhadas.</p>
+</div>

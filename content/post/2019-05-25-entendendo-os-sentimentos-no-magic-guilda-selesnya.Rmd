@@ -1,0 +1,241 @@
+---
+title: 'Entendendo os sentimentos no Magic: Guilda Selesnya'
+author: Tarssio Barreto
+date: '2019-05-25'
+slug: entendendo-os-sentimentos-no-magic-guilda-selesnya
+categories: []
+tags:
+  - Magic
+keywords:
+  - tech
+---
+
+## Pacotes que serão utilizados: 
+
+```{r warning = FALSE, message = FALSE}
+
+
+library(pacman)
+
+p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)
+
+``` 
+
+Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas. Eu, realmente, adoro este evento. Falaria bem mais sobre isto, mas vamos aos objetivos desta publicação.
+
+Desta vez, vamos através de uma série de publicação analisar tanto as `flavors texts` quanto os textos de habilidades das cartas do `Magic The Gathering`. Neste meio do caminho eu queria aproveitar o que foi ensinado pelo Joshua e vou tentar usar o Highchart o máximo de vezes que eu conseguir.
+
+Nesta primeira publicação, veremos apenas a guilda Selesnya e quais sentimentos atreladas a esta guilda.
+
+## O conclave Selesnya
+
+A guilda Selesnya se vê como a voz de Mat'Selesnya, uma consciência misteriosa que eles creem ser a manifestação da própria natureza. Todos na guilda são considerados veículos desta voz singular, e buscam expandi-la evangelizando com sua mensagem e agregando membros. A mensagem Selesnya é pessoal, tanto quanto pública: os indivíduos precisam silenciar sua própria consciência para ouvir a vontade de sua mestre de guilda, uma dríade de três cabeças, a transmissora espiritual de Mat'Selesnya.
+
+Apesar dos Selenya aparentemente serem todos doces e alegres, uma observação mais detalhada mostra o contrário. Muitos cidadãos acham que o Conclave é uma seita, tanto quanto os Rakdos são. Cada membro é um fanático pela causa, e a conformidade não é pedida, mas sim esperada de maneira natural. Ninguém tem certeza se o Conclave realiza lavagem cerebral em alguém ou não, mas muitos membros agem como se eles realmente fizessem.
+
+O Conclave Selesnya é mais bem descrito como um grupo de amantes da natureza – mas uma natureza habitada por bestas gigantes e druidas poderosos às centenas de milhares. Sua estrutura é descentralizada (ou seja, sem líderes definidos) e seu estilo de vida é muito simples, baseado na harmonia de uns com os outros e com a natureza (ou com o que dela restou), e eles fazem tudo o que podem para passar esta mensagem para todo o mundo.
+ 
+## Adquirindo os dados
+
+Os dados aqui utilizados foram adquiridos pelo https://mtgjson.com/. Criamos, então, um arquivo .json e fizemos alguns tratamentos nos dados:
+
+```{r warning = FALSE, message = FALSE}
+
+library("rjson")
+
+# Give the input file name to the function.
+
+magic <- fromJSON(file = "C:/Users/tarss/Desktop/Magic Blog/mtg/magic.json")
+
+magic <- magic$cards
+
+head(magic,1)
+
+``` 
+
+Para cada carta temos uma avalanche de informação, mas queremos usar apenas algumas destas variáveis que podem ser conferidas no código a frente: 
+
+```{r warning = FALSE, message = FALSE}
+
+# Selecionando as variáveis importantes: 
+
+aux <- magic %>%
+  map(extract, c("number", "flavorText", "originalText", "types", "name", "colors", 
+                 "convertedManaCost")) %>% 
+  enframe() %>% 
+  unnest()
+
+colnames(aux)[1] <- "id"
+
+# Nosso problema é tentar organizar o nosso arquivo "aux" já que ao observá-lo temos um banco de dados muito desestruturado.
+
+
+seq <- rep(c("number", "flavorText", "originalText", "Type", "name", "color", "cmc"), nrow(aux)/7) %>% 
+  as.tibble()
+
+GRN <- aux %>%  bind_cols(seq) %>% dcast(id ~ value1) %>% 
+  select("name", "number", "cmc", "color", "flavorText", "originalText", "Type") %>% 
+  as.tibble() %>% 
+  mutate(id = as.factor(seq(1:283))) %>% 
+  group_by(id) %>% 
+  mutate(color = toString(color))
+
+
+head(GRN)
+``` 
+
+Apesar da função `head` não ser bastante útil para mostrar o banco de dados como um todo (aceito sugestões), ela consegue por em evidência uma variável fundamental para esta análise: `a identidade de cor de cada carta`.
+
+## Selecionando as cartas Selesnya 
+
+Primeiro, eu tive que adicionar o resto das cartas que estão no clã Selesnya, mas não possuem a cor verde e branca na sua identidade de cor. Este é um trabalho um pouco chato e tenho pensado em como escalarei o código para resolver o problema para as outras guildas. Ou, talvez, eu vá convidando algumas pessoas para escrever sobre suas guildas favoritas.
+
+A seguir filtramos de forma a ter apenas as cartas Selesnya.
+```{r warning = FALSE, message = FALSE}
+
+guilda <- unique(GRN$color)
+
+add <- c("Selesnya Locket", "Temple Garden", "Selesnya Guildgate", "Impervious Greatwurm",
+         "Sprouting Renewal", "Venerated Loxodon", "Arboretum Elemental", "Conclave Tribunal",
+         "Flight of Equenauts", "Ledev Guardian", "Loxodon Restorer", "Pack Favor", "Pause for Reflection",
+         "Siege Wurm", "Vernadi Shieldmate")
+
+Selesnya <- GRN %>% 
+  filter(color == guilda[5] | color == guilda[11] | name %in% add) %>% 
+  filter(flavorText != "NULL")
+
+``` 
+
+## Analisando o Flavor Text: 
+
+Agora vamos separar os `flavors texts` das cartas e tentaremos através do "nrc" ver qual tipo de sentimento dominante na guilda e quais são as principais palavras com esta indexação de sentimento. Desta forma, acredito que poderemos ver um resumo da participação da guilda nos eventos anteriores à Guerra da Centelha.
+
+```{r warning = FALSE, message = FALSE}
+
+# Lexicon
+
+nrc_lexicon <- get_sentiments("nrc")
+
+# Retomando as palavras: 
+
+selesnya_flavor <- Selesnya %>% 
+  ungroup() %>% 
+  select(flavorText) %>% 
+  unnest_tokens(word, flavorText) %>% 
+  inner_join(nrc_lexicon) 
+
+head(selesnya_flavor)
+
+```
+
+Saimos deste momento com algumas palavras e os sentimentos que podem estar associado a elas, mas é preciso um pouco de visualização de dados para compreendermos um pouco da história: 
+
+```{r warning = FALSE, message = FALSE}
+
+# Criando o tema Selesnya: 
+
+thm <- hc_theme(
+  chart = list(
+    backgroundColor = "transparent",
+    divBackgroundImage = "https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/0/08/Selesnya_Logo.png"
+  ))
+
+# Criando o gráfico
+
+
+hchart(selesnya_flavor$sentiment) %>%   
+  hc_title(text = "Selesnya Flavor", style = list(color = "green")) %>% 
+  hc_yAxis(labels = list(style = list(color = "black")),
+           gridLineColor = "#111111") %>% 
+  hc_xAxis(labels = list(style = list(color = "black"))) %>% 
+  hc_colors("green") %>% 
+  hc_add_theme(thm)
+
+``` 
+
+Pausa, para minha primeira vez no hchart, já me sinto encantado. Queria saber como ajustar muitas coisas, mas a frente vou aprendendo. É importante, às vezes, sabe se contentar com o que é capaz de fazer no momento.
+
+Mas, indo a análise, o bloco de `Guilds of Ravnica` é um momento pré-guerra, a guilda Selesnya teve a `Vitu-Ghazi`, a árvore do mundo, danificada e vive um momento cujo grande objetivo é aumentar suas fileiras de guerra e se proteger.
+
+Visto que falamos de uma guilda que vive uma união regiliosa e que se encontra em um contexto de pré-confronto, é bem condizente que palavras ligadas a `ansiedade` e `fé` estejam bastante citada no momento do bloco. Infelizmente, eu não sou um grande conhecer das histórias, mas vou começar a tentar trazer pessoas que sabem mais.
+
+Quanto as palavras mais utilizadas, temos, principalmente, as palavras: `árvore`, `ódio`, `esperança` e `tranquilidade`. A palavra ódio que é a que menos está em sintonia com as outras está no flavor da campeã selesnya: `Emmara, Soul of the Accord`.
+
+`"Whatever hatred destroys, a single act of trust can revive"`
+
+Mostrando o quanto a guerra é algo aversivo aos Selesnya, tanto que a posição deste, a princípio, era de defender os seus portões e ignorar aquilo que não tangia a eles.
+
+```{r warning = FALSE, message = FALSE}
+
+sel_flavor <- Corpus(VectorSource(selesnya_flavor$word))
+
+wordcloud(sel_flavor, scale=c(5,0.5), 
+           max.words=7, random.order=FALSE, 
+          rot.per=0.1, use.r.layout=TRUE, 
+          colors=brewer.pal(8, "Dark2"))
+          
+``` 
+
+## Analisando as habilidades: 
+
+O conclave Selesnya tem suas características muito pautada em criaturas, ou em grandes criaturas devastadoras com muito poder ou em várias criaturas pequenas formando um exército poderoso. As habilidades estão ligadas a convocação de grandes criaturas utilizando as menores para isto e aumentar o poder do exército (homem a homem ou uma ajuda global). Ou seja, as habilidade tem como centro as `criaturas` e é isto que esperamos perceber ao analisar estas cartas.
+
+
+```{r warning = FALSE, message = FALSE}
+
+sel_cloud <- Selesnya %>% 
+  ungroup() %>% 
+  unnest_tokens(word, originalText) %>% 
+  inner_join(nrc_lexicon) 
+
+head(sel_cloud)
+
+sel_txt <- Corpus(VectorSource(sel_cloud$word))
+
+wordcloud(sel_txt,  
+          max.words= 12, random.order=FALSE, 
+          rot.per=0.1, use.r.layout=TRUE, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+E olha lá, como as coisas condizem! A palavra criatura é aquela mais utilizada nas habilidades selesnya, uma vez que as criaturas são alvo ou desencadeiam as habilidades dispostas nesta guilda. Temos, também, em destaque as palavras `battlefield` e `vigilance` que corroboram a questão do recrutamento de novos seres para defender os portões desta guilda.
+
+# Sentimento relacionado as habilidades: 
+
+
+Destaca-se neste caso a palavra `fear`, eu mesmo acharia amedrontar grandes bestas com alto poder destrutivo convocadas antes da hora por pequenas criaturas que pareciam inofensivas. Este sentimento está ligado, principalmente, as palavras: `creature` e `battlefield`.
+
+```{r warning = FALSE, message = FALSE}
+
+
+hchart(sel_cloud$sentiment) %>%   
+  hc_title(text = "Selesnya Hability Text", style = list(color = "green")) %>% 
+  hc_yAxis(labels = list(style = list(color = "black")),
+           gridLineColor = "#111111") %>% 
+  hc_xAxis(labels = list(style = list(color = "black"))) %>% 
+  hc_colors("green") %>% 
+  hc_add_theme(thm)
+  
+```
+
+
+Outra questão interessante é o que as palavras `white` e `green` se relacionam: 
+
+```{r warning = FALSE, message = FALSE}
+
+sel_filter <- sel_cloud %>% 
+  filter(word %in% c("white", "green")) %>% 
+  mutate(to = word) %>% 
+  mutate(from = sentiment) %>% 
+  select(to, from)
+
+
+head(sel_filter)  
+
+g <- graph_from_data_frame(sel_filter)
+
+plot(g)
+
+```
+
+Interessante, por fim, temos a relação entre estas palavras e os sentimentos atrelados. A única não intersecção diz respeito a palavra ao sentimento de `anticipation` que está ligado apenas a palavra branca. Esta boa combinação entre os sentimentos das cores corroborá a ideia de que o Conclave Selesnya é uma guilda composta por cores naturalmente alinhadas.

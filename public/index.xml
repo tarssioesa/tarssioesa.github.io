@@ -6,10 +6,19 @@
     <description>Recent content on Dad2s</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>pt-BR</language>
-    <lastBuildDate>Tue, 21 May 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 25 May 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Entendendo os sentimentos no Magic: Guilda Selesnya</title>
+      <link>/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/</link>
+      <pubDate>Sat, 25 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/</guid>
+      <description>Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas.</description>
+    </item>
     
     <item>
       <title>Elastic-Net binomial para textos</title>
