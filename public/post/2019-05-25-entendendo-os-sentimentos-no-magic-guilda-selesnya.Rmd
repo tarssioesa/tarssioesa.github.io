@@ -140,16 +140,18 @@ thm <- hc_theme(
     divBackgroundImage = "https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/0/08/Selesnya_Logo.png"
   ))
 
-# Criando o gráfico
+# Criando o gráfico, nao funcionou no markdown, desculpem.
 
 
-hchart(selesnya_flavor$sentiment) %>%   
-  hc_title(text = "Selesnya Flavor", style = list(color = "green")) %>% 
-  hc_yAxis(labels = list(style = list(color = "black")),
-           gridLineColor = "#111111") %>% 
-  hc_xAxis(labels = list(style = list(color = "black"))) %>% 
-  hc_colors("green") %>% 
-  hc_add_theme(thm)
+# hchart(selesnya_flavor$sentiment) %>%   
+#   hc_title(text = "Selesnya Flavor", style = list(color = "green")) %>% 
+#   hc_yAxis(labels = list(style = list(color = "black")),
+#            gridLineColor = "#111111") %>% 
+#   hc_xAxis(labels = list(style = list(color = "black"))) %>% 
+#   hc_colors("green") %>% 
+#   hc_add_theme(thm)
+
+knitr::include_graphics("C:/Users/tarss/Desktop/Magic Blog/mtg/selesnya_flavor.jpeg")
 
 ``` 
 
@@ -207,15 +209,17 @@ Destaca-se neste caso a palavra `fear`, eu mesmo acharia amedrontar grandes best
 
 ```{r warning = FALSE, message = FALSE}
 
+# hchart(sel_cloud$sentiment) %>%   
+#   hc_title(text = "Selesnya Hability Text", style = list(color = "green")) %>% 
+#   hc_yAxis(labels = list(style = list(color = "black")),
+#            gridLineColor = "#111111") %>% 
+#   hc_xAxis(labels = list(style = list(color = "black"))) %>% 
+#   hc_colors("green") %>% 
+#   hc_add_theme(thm)
 
-hchart(sel_cloud$sentiment) %>%   
-  hc_title(text = "Selesnya Hability Text", style = list(color = "green")) %>% 
-  hc_yAxis(labels = list(style = list(color = "black")),
-           gridLineColor = "#111111") %>% 
-  hc_xAxis(labels = list(style = list(color = "black"))) %>% 
-  hc_colors("green") %>% 
-  hc_add_theme(thm)
-  
+knitr::include_graphics("C:/Users/tarss/Desktop/Magic Blog/mtg/selesnya_text.jpeg")
+
+
 ```
 
 

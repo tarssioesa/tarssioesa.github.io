@@ -8,18 +8,18 @@
 <meta name="generator" content="Hugo 0.55.6 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="Tarssio Barreto">
 <meta name="keywords" content="tech">
-<meta name="description" content="Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas.">
+<meta name="description" content="Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas. Eu, realmente, adoro este evento. Falaria bem mais sobre isto, mas vamos aos objetivos desta publicação.">
 
 
-<meta property="og:description" content="Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas.">
+<meta property="og:description" content="Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas. Eu, realmente, adoro este evento. Falaria bem mais sobre isto, mas vamos aos objetivos desta publicação.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Entendendo os sentimentos no Magic: Guilda Selesnya">
 <meta name="twitter:title" content="Entendendo os sentimentos no Magic: Guilda Selesnya">
 <meta property="og:url" content="/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/">
 <meta property="twitter:url" content="/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/">
 <meta property="og:site_name" content="Dad2s">
-<meta property="og:description" content="Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas.">
-<meta name="twitter:description" content="Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas.">
+<meta property="og:description" content="Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas. Eu, realmente, adoro este evento. Falaria bem mais sobre isto, mas vamos aos objetivos desta publicação.">
+<meta name="twitter:description" content="Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas. Eu, realmente, adoro este evento. Falaria bem mais sobre isto, mas vamos aos objetivos desta publicação.">
 <meta property="og:locale" content="pt-BR">
 
   
@@ -204,39 +204,6 @@
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
               
-<script src="/rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
-<script src="/rmarkdown-libs/jquery/jquery.min.js"></script>
-<script src="/rmarkdown-libs/proj4js/proj4.js"></script>
-<link href="/rmarkdown-libs/highcharts/css/motion.css" rel="stylesheet" />
-<script src="/rmarkdown-libs/highcharts/highstock.js"></script>
-<script src="/rmarkdown-libs/highcharts/highcharts-3d.js"></script>
-<script src="/rmarkdown-libs/highcharts/highcharts-more.js"></script>
-<script src="/rmarkdown-libs/highcharts/modules/annotations.js"></script>
-<script src="/rmarkdown-libs/highcharts/modules/broken-axis.js"></script>
-<script src="/rmarkdown-libs/highcharts/modules/data.js"></script>
-<script src="/rmarkdown-libs/highcharts/modules/drilldown.js"></script>
-<script src="/rmarkdown-libs/highcharts/modules/exporting.js"></script>
-<script src="/rmarkdown-libs/highcharts/modules/funnel.js"></script>
-<script src="/rmarkdown-libs/highcharts/modules/heatmap.js"></script>
-<script src="/rmarkdown-libs/highcharts/modules/map.js"></script>
-<script src="/rmarkdown-libs/highcharts/modules/no-data-to-display.js"></script>
-<script src="/rmarkdown-libs/highcharts/modules/offline-exporting.js"></script>
-<script src="/rmarkdown-libs/highcharts/modules/solid-gauge.js"></script>
-<script src="/rmarkdown-libs/highcharts/modules/treemap.js"></script>
-<script src="/rmarkdown-libs/highcharts/plugins/annotations.js"></script>
-<script src="/rmarkdown-libs/highcharts/plugins/draggable-legend.js"></script>
-<script src="/rmarkdown-libs/highcharts/plugins/draggable-points.js"></script>
-<script src="/rmarkdown-libs/highcharts/plugins/export-csv.js"></script>
-<script src="/rmarkdown-libs/highcharts/plugins/grouped-categories.js"></script>
-<script src="/rmarkdown-libs/highcharts/plugins/motion.js"></script>
-<script src="/rmarkdown-libs/highcharts/plugins/pattern-fill-v2.js"></script>
-<script src="/rmarkdown-libs/highcharts/plugins/tooltip-delay.js"></script>
-<script src="/rmarkdown-libs/highcharts/custom/reset.js"></script>
-<script src="/rmarkdown-libs/highcharts/custom/symbols-extra.js"></script>
-<script src="/rmarkdown-libs/highcharts/custom/text-symbols.js"></script>
-<link href="/rmarkdown-libs/fontawesome/font-awesome.min.css" rel="stylesheet" />
-<link href="/rmarkdown-libs/htmlwdgtgrid/htmlwdgtgrid.css" rel="stylesheet" />
-<script src="/rmarkdown-libs/highchart-binding/highchart.js"></script>
 
 
 <div id="pacotes-que-serao-utilizados" class="section level2">
@@ -767,18 +734,19 @@ thm &lt;- hc_theme(
     divBackgroundImage = &quot;https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/0/08/Selesnya_Logo.png&quot;
   ))
 
-# Criando o gráfico
+# Criando o gráfico, nao funcionou no markdown, desculpem.
 
 
-hchart(selesnya_flavor$sentiment) %&gt;%   
-  hc_title(text = &quot;Selesnya Flavor&quot;, style = list(color = &quot;green&quot;)) %&gt;% 
-  hc_yAxis(labels = list(style = list(color = &quot;black&quot;)),
-           gridLineColor = &quot;#111111&quot;) %&gt;% 
-  hc_xAxis(labels = list(style = list(color = &quot;black&quot;))) %&gt;% 
-  hc_colors(&quot;green&quot;) %&gt;% 
-  hc_add_theme(thm)</code></pre>
-<div id="htmlwidget-1" style="width:100%;height:500px;" class="highchart html-widget"></div>
-<script type="application/json" data-for="htmlwidget-1">{"x":{"hc_opts":{"title":{"text":"Selesnya Flavor","style":{"color":"green"}},"yAxis":{"title":{"text":null},"labels":{"style":{"color":"black"}},"gridLineColor":"#111111"},"credits":{"enabled":false},"exporting":{"enabled":false},"plotOptions":{"series":{"turboThreshold":0},"treemap":{"layoutAlgorithm":"squarified"},"bubble":{"minSize":5,"maxSize":25}},"annotationsOptions":{"enabledButtons":false},"tooltip":{"delayForDisplay":10},"xAxis":{"type":"category","labels":{"style":{"color":"black"}}},"series":[{"data":[{"name":"anger","y":4},{"name":"anticipation","y":10},{"name":"disgust","y":4},{"name":"fear","y":5},{"name":"joy","y":6},{"name":"negative","y":12},{"name":"positive","y":9},{"name":"sadness","y":6},{"name":"surprise","y":7},{"name":"trust","y":9}],"type":"column"}],"colors":["green"]},"theme":{"chart":{"backgroundColor":"transparent","divBackgroundImage":"https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/0/08/Selesnya_Logo.png"}},"conf_opts":{"global":{"Date":null,"VMLRadialGradientURL":"http =//code.highcharts.com/list(version)/gfx/vml-radial-gradient.png","canvasToolsURL":"http =//code.highcharts.com/list(version)/modules/canvas-tools.js","getTimezoneOffset":null,"timezoneOffset":0,"useUTC":true},"lang":{"contextButtonTitle":"Chart context menu","decimalPoint":".","downloadJPEG":"Download JPEG image","downloadPDF":"Download PDF document","downloadPNG":"Download PNG image","downloadSVG":"Download SVG vector image","drillUpText":"Back to {series.name}","invalidDate":null,"loading":"Loading...","months":["January","February","March","April","May","June","July","August","September","October","November","December"],"noData":"No data to display","numericSymbols":["k","M","G","T","P","E"],"printChart":"Print chart","resetZoom":"Reset zoom","resetZoomTitle":"Reset zoom level 1:1","shortMonths":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"thousandsSep":" ","weekdays":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]}},"type":"chart","fonts":[],"debug":false},"evals":[],"jsHooks":[]}</script>
+# hchart(selesnya_flavor$sentiment) %&gt;%   
+#   hc_title(text = &quot;Selesnya Flavor&quot;, style = list(color = &quot;green&quot;)) %&gt;% 
+#   hc_yAxis(labels = list(style = list(color = &quot;black&quot;)),
+#            gridLineColor = &quot;#111111&quot;) %&gt;% 
+#   hc_xAxis(labels = list(style = list(color = &quot;black&quot;))) %&gt;% 
+#   hc_colors(&quot;green&quot;) %&gt;% 
+#   hc_add_theme(thm)
+
+knitr::include_graphics(&quot;C:/Users/tarss/Desktop/Magic Blog/mtg/selesnya_flavor.jpeg&quot;)</code></pre>
+<p><img src="C:/Users/tarss/Desktop/Magic%20Blog/mtg/selesnya_flavor.jpeg" width="188" /></p>
 <p>Pausa, para minha primeira vez no hchart, já me sinto encantado. Queria saber como ajustar muitas coisas, mas a frente vou aprendendo. É importante, às vezes, sabe se contentar com o que é capaz de fazer no momento.</p>
 <p>Mas, indo a análise, o bloco de <code>Guilds of Ravnica</code> é um momento pré-guerra, a guilda Selesnya teve a <code>Vitu-Ghazi</code>, a árvore do mundo, danificada e vive um momento cujo grande objetivo é aumentar suas fileiras de guerra e se proteger.</p>
 <p>Visto que falamos de uma guilda que vive uma união regiliosa e que se encontra em um contexto de pré-confronto, é bem condizente que palavras ligadas a <code>ansiedade</code> e <code>fé</code> estejam bastante citada no momento do bloco. Infelizmente, eu não sou um grande conhecer das histórias, mas vou começar a tentar trazer pessoas que sabem mais.</p>
@@ -823,15 +791,16 @@ wordcloud(sel_txt,
 <div id="sentimento-relacionado-as-habilidades" class="section level1">
 <h1>Sentimento relacionado as habilidades:</h1>
 <p>Destaca-se neste caso a palavra <code>fear</code>, eu mesmo acharia amedrontar grandes bestas com alto poder destrutivo convocadas antes da hora por pequenas criaturas que pareciam inofensivas. Este sentimento está ligado, principalmente, as palavras: <code>creature</code> e <code>battlefield</code>.</p>
-<pre class="r"><code>hchart(sel_cloud$sentiment) %&gt;%   
-  hc_title(text = &quot;Selesnya Hability Text&quot;, style = list(color = &quot;green&quot;)) %&gt;% 
-  hc_yAxis(labels = list(style = list(color = &quot;black&quot;)),
-           gridLineColor = &quot;#111111&quot;) %&gt;% 
-  hc_xAxis(labels = list(style = list(color = &quot;black&quot;))) %&gt;% 
-  hc_colors(&quot;green&quot;) %&gt;% 
-  hc_add_theme(thm)</code></pre>
-<div id="htmlwidget-2" style="width:100%;height:500px;" class="highchart html-widget"></div>
-<script type="application/json" data-for="htmlwidget-2">{"x":{"hc_opts":{"title":{"text":"Selesnya Hability Text","style":{"color":"green"}},"yAxis":{"title":{"text":null},"labels":{"style":{"color":"black"}},"gridLineColor":"#111111"},"credits":{"enabled":false},"exporting":{"enabled":false},"plotOptions":{"series":{"turboThreshold":0},"treemap":{"layoutAlgorithm":"squarified"},"bubble":{"minSize":5,"maxSize":25}},"annotationsOptions":{"enabledButtons":false},"tooltip":{"delayForDisplay":10},"xAxis":{"type":"category","labels":{"style":{"color":"black"}}},"series":[{"data":[{"name":"anger","y":4},{"name":"anticipation","y":10},{"name":"disgust","y":11},{"name":"fear","y":16},{"name":"joy","y":11},{"name":"negative","y":16},{"name":"positive","y":22},{"name":"sadness","y":3},{"name":"trust","y":12}],"type":"column"}],"colors":["green"]},"theme":{"chart":{"backgroundColor":"transparent","divBackgroundImage":"https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/0/08/Selesnya_Logo.png"}},"conf_opts":{"global":{"Date":null,"VMLRadialGradientURL":"http =//code.highcharts.com/list(version)/gfx/vml-radial-gradient.png","canvasToolsURL":"http =//code.highcharts.com/list(version)/modules/canvas-tools.js","getTimezoneOffset":null,"timezoneOffset":0,"useUTC":true},"lang":{"contextButtonTitle":"Chart context menu","decimalPoint":".","downloadJPEG":"Download JPEG image","downloadPDF":"Download PDF document","downloadPNG":"Download PNG image","downloadSVG":"Download SVG vector image","drillUpText":"Back to {series.name}","invalidDate":null,"loading":"Loading...","months":["January","February","March","April","May","June","July","August","September","October","November","December"],"noData":"No data to display","numericSymbols":["k","M","G","T","P","E"],"printChart":"Print chart","resetZoom":"Reset zoom","resetZoomTitle":"Reset zoom level 1:1","shortMonths":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"thousandsSep":" ","weekdays":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]}},"type":"chart","fonts":[],"debug":false},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code># hchart(sel_cloud$sentiment) %&gt;%   
+#   hc_title(text = &quot;Selesnya Hability Text&quot;, style = list(color = &quot;green&quot;)) %&gt;% 
+#   hc_yAxis(labels = list(style = list(color = &quot;black&quot;)),
+#            gridLineColor = &quot;#111111&quot;) %&gt;% 
+#   hc_xAxis(labels = list(style = list(color = &quot;black&quot;))) %&gt;% 
+#   hc_colors(&quot;green&quot;) %&gt;% 
+#   hc_add_theme(thm)
+
+knitr::include_graphics(&quot;C:/Users/tarss/Desktop/Magic Blog/mtg/selesnya_text.jpeg&quot;)</code></pre>
+<p><img src="C:/Users/tarss/Desktop/Magic%20Blog/mtg/selesnya_text.jpeg" width="188" /></p>
 <p>Outra questão interessante é o que as palavras <code>white</code> e <code>green</code> se relacionam:</p>
 <pre class="r"><code>sel_filter &lt;- sel_cloud %&gt;% 
   filter(word %in% c(&quot;white&quot;, &quot;green&quot;)) %&gt;% 
@@ -1116,7 +1085,7 @@ plot(g)</code></pre>
                   May 5, 2019
                 </span>
               </span>
-              <div class="media-content hide-xs font-merryweather">Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas.</div>
+              <div class="media-content hide-xs font-merryweather">Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas. Eu, realmente, adoro este evento. Falaria bem mais sobre isto, mas vamos aos objetivos desta publicação.</div>
             </div>
             <div style="clear:both;"></div>
             <hr>
