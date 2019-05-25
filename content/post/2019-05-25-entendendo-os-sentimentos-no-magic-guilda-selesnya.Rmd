@@ -49,8 +49,6 @@ magic <- fromJSON(file = "C:/Users/tarss/Desktop/Magic Blog/mtg/magic.json")
 
 magic <- magic$cards
 
-head(magic,1)
-
 ``` 
 
 Para cada carta temos uma avalanche de informação, mas queremos usar apenas algumas destas variáveis que podem ser conferidas no código a frente: 
@@ -151,7 +149,13 @@ thm <- hc_theme(
 #   hc_colors("green") %>% 
 #   hc_add_theme(thm)
 
-knitr::include_graphics("C:/Users/tarss/Desktop/Magic Blog/mtg/selesnya_flavor.jpeg")
+ggplot(data = selesnya_flavor, aes(x = sentiment)) +
+  geom_bar(fill = "green") +
+  theme_bw() +
+  labs(y = "") +
+  scale_y_continuous(breaks = seq(1,12, 1))
+
+
 
 ``` 
 
@@ -217,8 +221,11 @@ Destaca-se neste caso a palavra `fear`, eu mesmo acharia amedrontar grandes best
 #   hc_colors("green") %>% 
 #   hc_add_theme(thm)
 
-knitr::include_graphics("C:/Users/tarss/Desktop/Magic Blog/mtg/selesnya_text.jpeg")
-
+ggplot(data = sel_cloud, aes(x = sentiment)) +
+  geom_bar(fill = "green") +
+  theme_bw() +
+  labs(y = "") +
+  scale_y_continuous(breaks = seq(1,12, 1))
 
 ```
 
