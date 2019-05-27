@@ -9,6 +9,9 @@ keywords:
   - tech
 ---
 
+<div style="text-align: justify">
+
+
 ## Pacotes que serão utilizados: 
 
 ```{r warning = FALSE, message = FALSE}
