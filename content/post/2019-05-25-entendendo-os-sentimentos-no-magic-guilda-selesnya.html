@@ -133,14 +133,8 @@ thm &lt;- hc_theme(
 #            gridLineColor = &quot;#111111&quot;) %&gt;% 
 #   hc_xAxis(labels = list(style = list(color = &quot;black&quot;))) %&gt;% 
 #   hc_colors(&quot;green&quot;) %&gt;% 
-#   hc_add_theme(thm)
-
-ggplot(data = selesnya_flavor, aes(x = sentiment)) +
-  geom_bar(fill = &quot;green&quot;) +
-  theme_bw() +
-  labs(y = &quot;&quot;) +
-  scale_y_continuous(breaks = seq(1,12, 1))</code></pre>
-<p><img src="/post/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+#   hc_add_theme(thm)</code></pre>
+<p><img src="C:/Users/tarss/Desktop/tarssioesa.github.io/static/img/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/selesnya_flavor.jpeg" /></p>
 <p>Pausa, para minha primeira vez no hchart, já me sinto encantado. Queria saber como ajustar muitas coisas, mas a frente vou aprendendo. É importante, às vezes, sabe se contentar com o que é capaz de fazer no momento.</p>
 <p>Mas, indo a análise, o bloco de <code>Guilds of Ravnica</code> é um momento pré-guerra, a guilda Selesnya teve a <code>Vitu-Ghazi</code>, a árvore do mundo, danificada e vive um momento cujo grande objetivo é aumentar suas fileiras de guerra e se proteger.</p>
 <p>Visto que falamos de uma guilda que vive uma união regiliosa e que se encontra em um contexto de pré-confronto, é bem condizente que palavras ligadas a <code>ansiedade</code> e <code>fé</code> estejam bastante citada no momento do bloco. Infelizmente, eu não sou um grande conhecer das histórias, mas vou começar a tentar trazer pessoas que sabem mais.</p>
@@ -191,14 +185,8 @@ wordcloud(sel_txt,
 #            gridLineColor = &quot;#111111&quot;) %&gt;% 
 #   hc_xAxis(labels = list(style = list(color = &quot;black&quot;))) %&gt;% 
 #   hc_colors(&quot;green&quot;) %&gt;% 
-#   hc_add_theme(thm)
-
-ggplot(data = sel_cloud, aes(x = sentiment)) +
-  geom_bar(fill = &quot;green&quot;) +
-  theme_bw() +
-  labs(y = &quot;&quot;) +
-  scale_y_continuous(breaks = seq(1,12, 1))</code></pre>
-<p><img src="/post/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+#   hc_add_theme(thm)</code></pre>
+<p><img src="C:/Users/tarss/Desktop/tarssioesa.github.io/static/img/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/selesnya_text.jpeg" /></p>
 <p>Outra questão interessante é o que as palavras <code>white</code> e <code>green</code> se relacionam:</p>
 <pre class="r"><code>sel_filter &lt;- sel_cloud %&gt;% 
   filter(word %in% c(&quot;white&quot;, &quot;green&quot;)) %&gt;% 
