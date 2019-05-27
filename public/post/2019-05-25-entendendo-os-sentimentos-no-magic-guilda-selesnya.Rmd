@@ -10,6 +10,9 @@ keywords:
   - tech
 ---
 
+<div style="text-align: justify">
+
+
 ## Pacotes que serão utilizados: 
 
 ```{r warning = FALSE, message = FALSE}
@@ -149,11 +152,15 @@ thm <- hc_theme(
 #   hc_colors("green") %>% 
 #   hc_add_theme(thm)
 
+ggplot(data = selesnya_flavor, aes(x = sentiment)) +
+  geom_bar(fill = "green") +
+  theme_bw() +
+  labs(y = "") +
+  scale_y_continuous(breaks = seq(1,12, 1))
+
+
 
 ``` 
-
-
-![](C:/Users/tarss/Desktop/tarssioesa.github.io/static/img/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/selesnya_flavor.jpeg)
 
 Pausa, para minha primeira vez no hchart, já me sinto encantado. Queria saber como ajustar muitas coisas, mas a frente vou aprendendo. É importante, às vezes, sabe se contentar com o que é capaz de fazer no momento.
 
@@ -217,10 +224,13 @@ Destaca-se neste caso a palavra `fear`, eu mesmo acharia amedrontar grandes best
 #   hc_colors("green") %>% 
 #   hc_add_theme(thm)
 
+ggplot(data = sel_cloud, aes(x = sentiment)) +
+  geom_bar(fill = "green") +
+  theme_bw() +
+  labs(y = "") +
+  scale_y_continuous(breaks = seq(1,12, 1))
 
 ```
-![](C:/Users/tarss/Desktop/tarssioesa.github.io/static/img/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/selesnya_text.jpeg)
-
 
 Outra questão interessante é o que as palavras `white` e `green` se relacionam: 
 
