@@ -8,32 +8,40 @@
 <meta name="generator" content="Hugo 0.55.6 with theme Tranquilpeak 0.4.3-SNAPSHOT">
 <meta name="author" content="Tarssio Barreto">
 <meta name="keywords" content="tech">
-<meta name="description" content="Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas. Eu, realmente, adoro este evento. Falaria bem mais sobre isto, mas vamos aos objetivos desta publicação.">
+<meta name="description" content="
 
 
-<meta property="og:description" content="Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas. Eu, realmente, adoro este evento. Falaria bem mais sobre isto, mas vamos aos objetivos desta publicação.">
+">
+
+
+<meta property="og:description" content="
+
+
+">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Entendendo os sentimentos no Magic: Guilda Selesnya">
-<meta name="twitter:title" content="Entendendo os sentimentos no Magic: Guilda Selesnya">
-<meta property="og:url" content="/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/">
-<meta property="twitter:url" content="/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/">
+<meta property="og:title" content="test">
+<meta name="twitter:title" content="test">
+<meta property="og:url" content="/2019/05/test/">
+<meta property="twitter:url" content="/2019/05/test/">
 <meta property="og:site_name" content="Dad2s">
-<meta property="og:description" content="Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas. Eu, realmente, adoro este evento. Falaria bem mais sobre isto, mas vamos aos objetivos desta publicação.">
-<meta name="twitter:description" content="Pacotes que serão utilizados:library(pacman)p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas. Eu, realmente, adoro este evento. Falaria bem mais sobre isto, mas vamos aos objetivos desta publicação.">
+<meta property="og:description" content="
+
+
+">
+<meta name="twitter:description" content="
+
+
+">
 <meta property="og:locale" content="pt-BR">
 
   
-    <meta property="article:published_time" content="2019-05-25T00:00:00">
+    <meta property="article:published_time" content="2019-05-27T00:00:00">
   
   
-    <meta property="article:modified_time" content="2019-05-25T00:00:00">
+    <meta property="article:modified_time" content="2019-05-27T00:00:00">
   
   
   
-  
-    
-      <meta property="article:tag" content="Magic">
-    
   
 
 
@@ -57,14 +65,14 @@
   <meta property="twitter:image" content="https://www.gravatar.com/avatar/2cbd1c8403ef218d99b08637747420f8?s=640">
 
 
-    <title>Entendendo os sentimentos no Magic: Guilda Selesnya</title>
+    <title>test</title>
 
     <link rel="icon" href="/favicon.png">
     
 
     
 
-    <link rel="canonical" href="/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/">
+    <link rel="canonical" href="/2019/05/test/">
 
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
@@ -184,15 +192,15 @@
             <div class="post-header main-content-wrap text-left">
   
     <h1 class="post-title" itemprop="headline">
-      Entendendo os sentimentos no Magic: Guilda Selesnya
+      test
     </h1>
   
   
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2019-05-25T00:00:00Z">
+      <time itemprop="datePublished" datetime="2019-05-27T00:00:00Z">
         
-   25, 2019
+   27, 2019
 
       </time>
     
@@ -206,233 +214,16 @@
               
 
 
-<div id="pacotes-que-serao-utilizados" class="section level2">
-<h2>Pacotes que serão utilizados:</h2>
-<pre class="r"><code>library(pacman)
-
-p_load(tidyverse,plotly, rjson, magrittr, reshape2, wordcloud, highcharter, ggraph, igraph, tidytext, tm)</code></pre>
-<p>Primeiramente, como foi lindo o IV SER. É muito legal ter um evento para encontrar pessoas que a gente acompanha de longe e que não sabemos nem qual a aparência, o som da voz e quanto são receptivas. Eu, realmente, adoro este evento. Falaria bem mais sobre isto, mas vamos aos objetivos desta publicação.</p>
-<p>Desta vez, vamos através de uma série de publicação analisar tanto as <code>flavors texts</code> quanto os textos de habilidades das cartas do <code>Magic The Gathering</code>. Neste meio do caminho eu queria aproveitar o que foi ensinado pelo Joshua e vou tentar usar o Highchart o máximo de vezes que eu conseguir.</p>
-<p>Nesta primeira publicação, veremos apenas a guilda Selesnya e quais sentimentos atreladas a esta guilda.</p>
-</div>
-<div id="o-conclave-selesnya" class="section level2">
-<h2>O conclave Selesnya</h2>
-<p>A guilda Selesnya se vê como a voz de Mat’Selesnya, uma consciência misteriosa que eles creem ser a manifestação da própria natureza. Todos na guilda são considerados veículos desta voz singular, e buscam expandi-la evangelizando com sua mensagem e agregando membros. A mensagem Selesnya é pessoal, tanto quanto pública: os indivíduos precisam silenciar sua própria consciência para ouvir a vontade de sua mestre de guilda, uma dríade de três cabeças, a transmissora espiritual de Mat’Selesnya.</p>
-<p>Apesar dos Selenya aparentemente serem todos doces e alegres, uma observação mais detalhada mostra o contrário. Muitos cidadãos acham que o Conclave é uma seita, tanto quanto os Rakdos são. Cada membro é um fanático pela causa, e a conformidade não é pedida, mas sim esperada de maneira natural. Ninguém tem certeza se o Conclave realiza lavagem cerebral em alguém ou não, mas muitos membros agem como se eles realmente fizessem.</p>
-<p>O Conclave Selesnya é mais bem descrito como um grupo de amantes da natureza – mas uma natureza habitada por bestas gigantes e druidas poderosos às centenas de milhares. Sua estrutura é descentralizada (ou seja, sem líderes definidos) e seu estilo de vida é muito simples, baseado na harmonia de uns com os outros e com a natureza (ou com o que dela restou), e eles fazem tudo o que podem para passar esta mensagem para todo o mundo.</p>
-</div>
-<div id="adquirindo-os-dados" class="section level2">
-<h2>Adquirindo os dados</h2>
-<p>Os dados aqui utilizados foram adquiridos pelo <a href="https://mtgjson.com/" class="uri">https://mtgjson.com/</a>. Criamos, então, um arquivo .json e fizemos alguns tratamentos nos dados:</p>
-<pre class="r"><code>library(&quot;rjson&quot;)
-
-# Give the input file name to the function.
-
-magic &lt;- fromJSON(file = &quot;C:/Users/tarss/Desktop/Magic Blog/mtg/magic.json&quot;)
-
-magic &lt;- magic$cards</code></pre>
-<p>Para cada carta temos uma avalanche de informação, mas queremos usar apenas algumas destas variáveis que podem ser conferidas no código a frente:</p>
-<pre class="r"><code># Selecionando as variáveis importantes: 
-
-aux &lt;- magic %&gt;%
-  map(extract, c(&quot;number&quot;, &quot;flavorText&quot;, &quot;originalText&quot;, &quot;types&quot;, &quot;name&quot;, &quot;colors&quot;, 
-                 &quot;convertedManaCost&quot;)) %&gt;% 
-  enframe() %&gt;% 
-  unnest()
-
-colnames(aux)[1] &lt;- &quot;id&quot;
-
-# Nosso problema é tentar organizar o nosso arquivo &quot;aux&quot; já que ao observá-lo temos um banco de dados muito desestruturado.
 
 
-seq &lt;- rep(c(&quot;number&quot;, &quot;flavorText&quot;, &quot;originalText&quot;, &quot;Type&quot;, &quot;name&quot;, &quot;color&quot;, &quot;cmc&quot;), nrow(aux)/7) %&gt;% 
-  as.tibble()
+HUGOMORE42
 
-GRN &lt;- aux %&gt;%  bind_cols(seq) %&gt;% dcast(id ~ value1) %&gt;% 
-  select(&quot;name&quot;, &quot;number&quot;, &quot;cmc&quot;, &quot;color&quot;, &quot;flavorText&quot;, &quot;originalText&quot;, &quot;Type&quot;) %&gt;% 
-  as.tibble() %&gt;% 
-  mutate(id = as.factor(seq(1:283))) %&gt;% 
-  group_by(id) %&gt;% 
-  mutate(color = toString(color))
-
-
-head(GRN)</code></pre>
-<pre><code>## # A tibble: 6 x 8
-## # Groups:   id [6]
-##   name    number   cmc     color       flavorText originalText Type   id   
-##   &lt;list&gt;  &lt;list&gt;   &lt;list&gt;  &lt;chr&gt;       &lt;list&gt;     &lt;list&gt;       &lt;list&gt; &lt;fct&gt;
-## 1 &lt;chr [~ &lt;chr [1~ &lt;dbl [~ G           &lt;chr [1]&gt;  &lt;chr [1]&gt;    &lt;chr ~ 1    
-## 2 &lt;chr [~ &lt;chr [1~ &lt;dbl [~ G           &lt;NULL&gt;     &lt;chr [1]&gt;    &lt;chr ~ 2    
-## 3 &lt;chr [~ &lt;chr [1~ &lt;dbl [~ R           &lt;chr [1]&gt;  &lt;chr [1]&gt;    &lt;chr ~ 3    
-## 4 &lt;chr [~ &lt;chr [1~ &lt;dbl [~ &quot;c(\&quot;B\&quot;, ~ &lt;chr [1]&gt;  &lt;chr [1]&gt;    &lt;chr ~ 4    
-## 5 &lt;chr [~ &lt;chr [1~ &lt;dbl [~ &quot;c(\&quot;B\&quot;, ~ &lt;chr [1]&gt;  &lt;chr [1]&gt;    &lt;chr ~ 5    
-## 6 &lt;chr [~ &lt;chr [1~ &lt;dbl [~ &quot;c(\&quot;W\&quot;, ~ &lt;NULL&gt;     &lt;chr [1]&gt;    &lt;chr ~ 6</code></pre>
-<p>Apesar da função <code>head</code> não ser bastante útil para mostrar o banco de dados como um todo (aceito sugestões), ela consegue por em evidência uma variável fundamental para esta análise: <code>a identidade de cor de cada carta</code>.</p>
-</div>
-<div id="selecionando-as-cartas-selesnya" class="section level2">
-<h2>Selecionando as cartas Selesnya</h2>
-<p>Primeiro, eu tive que adicionar o resto das cartas que estão no clã Selesnya, mas não possuem a cor verde e branca na sua identidade de cor. Este é um trabalho um pouco chato e tenho pensado em como escalarei o código para resolver o problema para as outras guildas. Ou, talvez, eu vá convidando algumas pessoas para escrever sobre suas guildas favoritas.</p>
-<p>A seguir filtramos de forma a ter apenas as cartas Selesnya.</p>
-<pre class="r"><code>guilda &lt;- unique(GRN$color)
-
-add &lt;- c(&quot;Selesnya Locket&quot;, &quot;Temple Garden&quot;, &quot;Selesnya Guildgate&quot;, &quot;Impervious Greatwurm&quot;,
-         &quot;Sprouting Renewal&quot;, &quot;Venerated Loxodon&quot;, &quot;Arboretum Elemental&quot;, &quot;Conclave Tribunal&quot;,
-         &quot;Flight of Equenauts&quot;, &quot;Ledev Guardian&quot;, &quot;Loxodon Restorer&quot;, &quot;Pack Favor&quot;, &quot;Pause for Reflection&quot;,
-         &quot;Siege Wurm&quot;, &quot;Vernadi Shieldmate&quot;)
-
-Selesnya &lt;- GRN %&gt;% 
-  filter(color == guilda[5] | color == guilda[11] | name %in% add) %&gt;% 
-  filter(flavorText != &quot;NULL&quot;)</code></pre>
-</div>
-<div id="analisando-o-flavor-text" class="section level2">
-<h2>Analisando o Flavor Text:</h2>
-<p>Agora vamos separar os <code>flavors texts</code> das cartas e tentaremos através do “nrc” ver qual tipo de sentimento dominante na guilda e quais são as principais palavras com esta indexação de sentimento. Desta forma, acredito que poderemos ver um resumo da participação da guilda nos eventos anteriores à Guerra da Centelha.</p>
-<pre class="r"><code># Lexicon
-
-nrc_lexicon &lt;- get_sentiments(&quot;nrc&quot;)
-
-# Retomando as palavras: 
-
-selesnya_flavor &lt;- Selesnya %&gt;% 
-  ungroup() %&gt;% 
-  select(flavorText) %&gt;% 
-  unnest_tokens(word, flavorText) %&gt;% 
-  inner_join(nrc_lexicon) 
-
-head(selesnya_flavor)</code></pre>
-<pre><code>## # A tibble: 6 x 2
-##   word     sentiment   
-##   &lt;chr&gt;    &lt;chr&gt;       
-## 1 offering trust       
-## 2 hope     anticipation
-## 3 hope     joy         
-## 4 hope     positive    
-## 5 hope     surprise    
-## 6 hope     trust</code></pre>
-<p>Saimos deste momento com algumas palavras e os sentimentos que podem estar associado a elas, mas é preciso um pouco de visualização de dados para compreendermos um pouco da história:</p>
-<pre class="r"><code># Criando o tema Selesnya: 
-
-thm &lt;- hc_theme(
-  chart = list(
-    backgroundColor = &quot;transparent&quot;,
-    divBackgroundImage = &quot;https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/0/08/Selesnya_Logo.png&quot;
-  ))
-
-# Criando o gráfico, nao funcionou no markdown, desculpem.
-
-
-# hchart(selesnya_flavor$sentiment) %&gt;%   
-#   hc_title(text = &quot;Selesnya Flavor&quot;, style = list(color = &quot;green&quot;)) %&gt;% 
-#   hc_yAxis(labels = list(style = list(color = &quot;black&quot;)),
-#            gridLineColor = &quot;#111111&quot;) %&gt;% 
-#   hc_xAxis(labels = list(style = list(color = &quot;black&quot;))) %&gt;% 
-#   hc_colors(&quot;green&quot;) %&gt;% 
-#   hc_add_theme(thm)
-
-ggplot(data = selesnya_flavor, aes(x = sentiment)) +
-  geom_bar(fill = &quot;green&quot;) +
-  theme_bw() +
-  labs(y = &quot;&quot;) +
-  scale_y_continuous(breaks = seq(1,12, 1))</code></pre>
-<p><img src="/post/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
-<p>Pausa, para minha primeira vez no hchart, já me sinto encantado. Queria saber como ajustar muitas coisas, mas a frente vou aprendendo. É importante, às vezes, sabe se contentar com o que é capaz de fazer no momento.</p>
-<p>Mas, indo a análise, o bloco de <code>Guilds of Ravnica</code> é um momento pré-guerra, a guilda Selesnya teve a <code>Vitu-Ghazi</code>, a árvore do mundo, danificada e vive um momento cujo grande objetivo é aumentar suas fileiras de guerra e se proteger.</p>
-<p>Visto que falamos de uma guilda que vive uma união regiliosa e que se encontra em um contexto de pré-confronto, é bem condizente que palavras ligadas a <code>ansiedade</code> e <code>fé</code> estejam bastante citada no momento do bloco. Infelizmente, eu não sou um grande conhecer das histórias, mas vou começar a tentar trazer pessoas que sabem mais.</p>
-<p>Quanto as palavras mais utilizadas, temos, principalmente, as palavras: <code>árvore</code>, <code>ódio</code>, <code>esperança</code> e <code>tranquilidade</code>. A palavra ódio que é a que menos está em sintonia com as outras está no flavor da campeã selesnya: <code>Emmara, Soul of the Accord</code>.</p>
-<p><code>"Whatever hatred destroys, a single act of trust can revive"</code></p>
-<p>Mostrando o quanto a guerra é algo aversivo aos Selesnya, tanto que a posição deste, a princípio, era de defender os seus portões e ignorar aquilo que não tangia a eles.</p>
-<pre class="r"><code>sel_flavor &lt;- Corpus(VectorSource(selesnya_flavor$word))
-
-wordcloud(sel_flavor, scale=c(5,0.5), 
-           max.words=7, random.order=FALSE, 
-          rot.per=0.1, use.r.layout=TRUE, 
-          colors=brewer.pal(8, &quot;Dark2&quot;))</code></pre>
-<p><img src="/post/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
-</div>
-<div id="analisando-as-habilidades" class="section level2">
-<h2>Analisando as habilidades:</h2>
-<p>O conclave Selesnya tem suas características muito pautada em criaturas, ou em grandes criaturas devastadoras com muito poder ou em várias criaturas pequenas formando um exército poderoso. As habilidades estão ligadas a convocação de grandes criaturas utilizando as menores para isto e aumentar o poder do exército (homem a homem ou uma ajuda global). Ou seja, as habilidade tem como centro as <code>criaturas</code> e é isto que esperamos perceber ao analisar estas cartas.</p>
-<pre class="r"><code>sel_cloud &lt;- Selesnya %&gt;% 
-  ungroup() %&gt;% 
-  unnest_tokens(word, originalText) %&gt;% 
-  inner_join(nrc_lexicon) 
-
-head(sel_cloud)</code></pre>
-<pre><code>## # A tibble: 6 x 9
-##   name    number  cmc     color    flavorText Type   id    word   sentiment
-##   &lt;list&gt;  &lt;list&gt;  &lt;list&gt;  &lt;chr&gt;    &lt;list&gt;     &lt;list&gt; &lt;fct&gt; &lt;chr&gt;  &lt;chr&gt;    
-## 1 &lt;chr [~ &lt;chr [~ &lt;dbl [~ &quot;c(\&quot;G\~ &lt;chr [1]&gt;  &lt;chr ~ 26    gain   anticipa~
-## 2 &lt;chr [~ &lt;chr [~ &lt;dbl [~ &quot;c(\&quot;G\~ &lt;chr [1]&gt;  &lt;chr ~ 26    gain   joy      
-## 3 &lt;chr [~ &lt;chr [~ &lt;dbl [~ &quot;c(\&quot;G\~ &lt;chr [1]&gt;  &lt;chr ~ 26    gain   positive 
-## 4 &lt;chr [~ &lt;chr [~ &lt;dbl [~ &quot;c(\&quot;G\~ &lt;chr [1]&gt;  &lt;chr ~ 29    battl~ fear     
-## 5 &lt;chr [~ &lt;chr [~ &lt;dbl [~ &quot;c(\&quot;G\~ &lt;chr [1]&gt;  &lt;chr ~ 29    battl~ negative 
-## 6 &lt;chr [~ &lt;chr [~ &lt;dbl [~ &quot;c(\&quot;G\~ &lt;chr [1]&gt;  &lt;chr ~ 29    player negative</code></pre>
-<pre class="r"><code>sel_txt &lt;- Corpus(VectorSource(sel_cloud$word))
-
-wordcloud(sel_txt,  
-          max.words= 12, random.order=FALSE, 
-          rot.per=0.1, use.r.layout=TRUE, 
-          colors=brewer.pal(8, &quot;Dark2&quot;))</code></pre>
-<p><img src="/post/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
-<p>E olha lá, como as coisas condizem! A palavra criatura é aquela mais utilizada nas habilidades selesnya, uma vez que as criaturas são alvo ou desencadeiam as habilidades dispostas nesta guilda. Temos, também, em destaque as palavras <code>battlefield</code> e <code>vigilance</code> que corroboram a questão do recrutamento de novos seres para defender os portões desta guilda.</p>
-</div>
-<div id="sentimento-relacionado-as-habilidades" class="section level1">
-<h1>Sentimento relacionado as habilidades:</h1>
-<p>Destaca-se neste caso a palavra <code>fear</code>, eu mesmo acharia amedrontar grandes bestas com alto poder destrutivo convocadas antes da hora por pequenas criaturas que pareciam inofensivas. Este sentimento está ligado, principalmente, as palavras: <code>creature</code> e <code>battlefield</code>.</p>
-<pre class="r"><code># hchart(sel_cloud$sentiment) %&gt;%   
-#   hc_title(text = &quot;Selesnya Hability Text&quot;, style = list(color = &quot;green&quot;)) %&gt;% 
-#   hc_yAxis(labels = list(style = list(color = &quot;black&quot;)),
-#            gridLineColor = &quot;#111111&quot;) %&gt;% 
-#   hc_xAxis(labels = list(style = list(color = &quot;black&quot;))) %&gt;% 
-#   hc_colors(&quot;green&quot;) %&gt;% 
-#   hc_add_theme(thm)
-
-ggplot(data = sel_cloud, aes(x = sentiment)) +
-  geom_bar(fill = &quot;green&quot;) +
-  theme_bw() +
-  labs(y = &quot;&quot;) +
-  scale_y_continuous(breaks = seq(1,12, 1))</code></pre>
-<p><img src="/post/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
-<p>Outra questão interessante é o que as palavras <code>white</code> e <code>green</code> se relacionam:</p>
-<pre class="r"><code>sel_filter &lt;- sel_cloud %&gt;% 
-  filter(word %in% c(&quot;white&quot;, &quot;green&quot;)) %&gt;% 
-  mutate(to = word) %&gt;% 
-  mutate(from = sentiment) %&gt;% 
-  select(to, from)
-
-
-head(sel_filter)  </code></pre>
-<pre><code>## # A tibble: 6 x 2
-##   to    from        
-##   &lt;chr&gt; &lt;chr&gt;       
-## 1 green joy         
-## 2 green positive    
-## 3 green trust       
-## 4 white anticipation
-## 5 white joy         
-## 6 white positive</code></pre>
-<pre class="r"><code>g &lt;- graph_from_data_frame(sel_filter)
-
-plot(g)</code></pre>
-<p><img src="/post/2019-05-25-entendendo-os-sentimentos-no-magic-guilda-selesnya_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
-<p>Interessante, por fim, temos a relação entre estas palavras e os sentimentos atrelados. A única não intersecção diz respeito a palavra ao sentimento de <code>anticipation</code> que está ligado apenas a palavra branca. Esta boa combinação entre os sentimentos das cores corroborá a ideia de que o Conclave Selesnya é uma guilda composta por cores naturalmente alinhadas.</p>
-</div>
 
               
             </div>
           </div>
           <div id="post-footer" class="post-footer main-content-wrap">
             
-              
-                
-                
-                  <div class="post-footer-tags">
-                    <span class="text-color-light text-small"></span><br/>
-                    
-  <a class="tag tag--primary tag--small" href="/tags/magic/">Magic</a>
-
-                  </div>
-                
               
             
             <div class="post-actions-wrap">
@@ -442,7 +233,7 @@ plot(g)</code></pre>
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/05/test/" data-tooltip="test">
+                <a class="post-action-btn btn btn--disabled">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml"></span>
@@ -450,7 +241,7 @@ plot(g)</code></pre>
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/05/elastic-net-binomial-para-textos/" data-tooltip="Elastic-Net binomial para textos">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/" data-tooltip="Entendendo os sentimentos no Magic: Guilda Selesnya">
               
                   <span class="hide-xs hide-sm text-small icon-mr"></span>
                   <i class="fa fa-angle-right"></i>
@@ -468,19 +259,19 @@ plot(g)</code></pre>
         </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/05/test/">
               <i class="fa fa-facebook-official"></i>
             </a>
           </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/05/test/">
               <i class="fa fa-twitter"></i>
             </a>
           </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/05/test/">
               <i class="fa fa-google-plus"></i>
             </a>
           </li>
@@ -528,7 +319,7 @@ plot(g)</code></pre>
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/05/test/" data-tooltip="test">
+                <a class="post-action-btn btn btn--disabled">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml"></span>
@@ -536,7 +327,7 @@ plot(g)</code></pre>
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/05/elastic-net-binomial-para-textos/" data-tooltip="Elastic-Net binomial para textos">
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/" data-tooltip="Entendendo os sentimentos no Magic: Guilda Selesnya">
               
                   <span class="hide-xs hide-sm text-small icon-mr"></span>
                   <i class="fa fa-angle-right"></i>
@@ -554,19 +345,19 @@ plot(g)</code></pre>
         </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/05/test/">
               <i class="fa fa-facebook-official"></i>
             </a>
           </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/05/test/">
               <i class="fa fa-twitter"></i>
             </a>
           </li>
         
           <li class="post-action hide-xs">
-            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/05/entendendo-os-sentimentos-no-magic-guilda-selesnya/">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/05/test/">
               <i class="fa fa-google-plus"></i>
             </a>
           </li>
@@ -596,19 +387,19 @@ plot(g)</code></pre>
   <ul class="share-options">
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F05%2Fentendendo-os-sentimentos-no-magic-guilda-selesnya%2F">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F05%2Ftest%2F">
           <i class="fa fa-facebook-official"></i><span>%!(EXTRA string=Facebook)</span>
         </a>
       </li>
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F05%2Fentendendo-os-sentimentos-no-magic-guilda-selesnya%2F">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F05%2Ftest%2F">
           <i class="fa fa-twitter"></i><span>%!(EXTRA string=Twitter)</span>
         </a>
       </li>
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F05%2Fentendendo-os-sentimentos-no-magic-guilda-selesnya%2F">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F05%2Ftest%2F">
           <i class="fa fa-google-plus"></i><span>%!(EXTRA string=Google&#43;)</span>
         </a>
       </li>
@@ -859,9 +650,9 @@ $(document).ready(function() {
     
       <script>
         var disqus_config = function () {
-          this.page.url = '\/2019\/05\/entendendo-os-sentimentos-no-magic-guilda-selesnya\/';
+          this.page.url = '\/2019\/05\/test\/';
           
-            this.page.identifier = '\/2019\/05\/entendendo-os-sentimentos-no-magic-guilda-selesnya\/'
+            this.page.identifier = '\/2019\/05\/test\/'
           
         };
         (function() {
