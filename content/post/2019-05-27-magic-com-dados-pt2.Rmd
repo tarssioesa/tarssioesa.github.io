@@ -1,0 +1,33 @@
+---
+title: Magic com Dados, pt2
+author: Barreto
+date: '2019-05-27'
+slug: magic-com-dados-pt2
+categories: []
+tags: []
+keywords:
+  - tech
+---
+
+<!--more-->
+
+Olá, faz pouco tempo que fiz uma publicação com algumas palavras chaves da guilda Selesnya no Magic. Acredito que acabou sendo muito focado na questão da programação e boa parte da mensagem se perdeu no caminho. Hoje será diferente, juro!.
+
+Primeiramente, vamos a perguntar quase sempre principal: "Mas o que foi que você fez?".
+
+Eu comecei baixando todas as cartas das coleções de GRN e GRA, eu tinha como objetivo encontrar palavras e sentimentos chaves que falassem sobre estas dez guildas. Isto passa, primeiramente pela tabulação das palavras e por uma junção entre o banco de palavras (Flavors Texts) e um dicionário que contém palavras e sentimentos usualmente atribuídos a estas.
+
+Cada guilda tem sua história associada e esta `lore` e a ideia, inicialmente, era encontrar o encaixe entre a filosofia da guilda e o contexto apresentado nos blocos em questão, usando para isto a história que é contada nas próprias cartas.
+
+Infelizmente, me faltaria braço para tratar de todas as guildas, então criei um `web app` que vocês podem brincar a vontade, selecionar guildas, sentimentos usuais, palavras mais comuns e ir comparando entre elas (existe um `Easter Egg` no Izzet).
+
+Esta abordagem usando texto como dados, têm sido utilizada para identificação de fake news, acompanhamento de eleição, acompanhamento do impacto de notícias no mercado financeiro, ou para alimentar sistemas de marketing, inclusive o musical. 
+
+Eu, apenas, quero fazer uma brincadeira e ter um amiguinhos no Magic e quem sabe ter alguma informação utilizada pelos amantes de lore.
+
+Por fim, segue o `web app`, espero que se divirtam: 
+
+https://okrabarreto.shinyapps.io/mtg1/
+ 
+
+ (Parece que minha escolha de tema não me permite publicar um shiny dentro do blog, resolverei em breve).
