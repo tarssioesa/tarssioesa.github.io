@@ -40,12 +40,8 @@ knitr::include_graphics("tabela.jpg")
 
 ## Uma formulação diferente para a Random Forest: 
 
-Infelizmente, eu não consegui por as equações via latex, mas segue uma imagem que fala um pouco sobre a mudança do equacionamento do Índice GINI que o torna adequado para variáveis ordinais: 
+Infelizmente, eu não consegui por as equações via latex, mas segue o artigo que fala sobre isto: `Classification Trees for Ordinal Responses in R: The rpartScore Package`.
 
-```{r}
-knitr::include_graphics("equation.jpg")
-
-```
 ## Análise Exploratória
 
 
