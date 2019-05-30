@@ -1,0 +1,13 @@
+---
+title: estimação dos atributos relevantes na satisfação de usuários de transporte
+  intercampi por random forest
+author: Tarssio Barreto
+date: '2019-05-30'
+slug: estimação-dos-atributos-relevantes-na-satisfação-de-usuários-de-transporte-intercampi-por-random-forest
+categories: []
+tags: []
+keywords:
+  - tech
+---
+
+<!--more-->

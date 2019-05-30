@@ -1,0 +1,331 @@
+---
+title: BUZUFBA
+author: Tarssio Barreto e Ícaro Bernardes
+date: '2019-05-30'
+slug: buzufba
+categories: []
+tags:
+  - Random Forest
+keywords:
+  - tech
+---
+
+
+# Estimação dos atributos relevantes na satisfação de usuários de transporte intercampi por random forest
+
+```{r}
+knitr::include_graphics("buzufba.jpg")
+```
+
+## Introdução
+
+Esta publicação tem como objetivo debater o artigo publicado no IV SER que visou debater os atributos relevantes para a satisfação dos usúarios do Buzufba (transporte intercapi da Universidade Federal da Bahia).
+
+Primeiramente, é interessante perceber algumas questões: 
+
+* A assiduidade dos usuários ao modal público é diretamente influenciada pela satisfação (qualidade esperada x qualidade percebida) que estes têm ao utilizar o serviço (LAI; CHEN, 2011, FREITAS, 2013).
+
+* Qualidade de serviços e satisfação dos clientes são conceitos subjetivos: Intangibilidade; Heterogeneidade e Inseparabilidade
+
+* Uma vez que a qualidade é uma construção social (PARASURAMAN; ZEITHAML; BERRY, 1985), a satisfação dos usuários e a importância dada a aspectos do serviço é função de características socioeconômicas como gênero, idade, ocupação, renda, nível educacional e outros (GUIRAO; GARCÍA-PASTOR; LÓPEZ-LAMBAS, 2016).
+
+Nos estudos sobre a qualidade dos serviços, a prática comum é a proposição de questionários ao público. Em tais pesquisas os clientes expressam sua satisfação global e sobre atributos do serviço. Há duas vias principais de estimação da ordem de importância destes atributos: importância declarada e importância derivada. Na primeira, os usuários são convidados a ordenar as características do serviço por importância. É um método mais direto e intuitivo, mas que amplia o tamanho do questionário e, por consequência, o fardo sobre o entrevistado podendo diminuir a precisão e a frequência de resposta da pesquisa. A importância derivada por sua vez estima o valor relativo das categorias mensurando estatisticamente a intensidade do elo entre cada atributo com a medida global de satisfação (GUIRAO; GARCÍA-PASTOR; LÓPEZ-LAMBAS, 2016). 
+
+O questionário em questão, porém, apenas inqueriu sobre a avaliação de determinadas variáveis e a satisfação geral dos usuários frente ao serviço de transporte prestado pelo Buzufba.
+
+```{r}
+knitr::include_graphics("tabela.jpg")
+```
+
+
+## Uma formulação diferente para a Random Forest: 
+
+Dada a função generalizada GINI, para medição de impureza de um determinado nó t:
+
+$$ i_{GG}(t) = \sum_{k=1}^{J}\sum_{l=1}^{J} C(\omega _k|\omega _l) p(\omega _k|t)p(\omega _k|l) $$
+
+Sendo $\omega$ as categorias ordinais da variável resposta Y.
+
+Supondo um conjunto s de scores que representam a variável Y podemos considerar o erro de classificação como uma transformação desejada para a diferença absoluta entre os pares de resultados, obtendo assim duas equações distintas para o $$ i_{GG}(t)$$ :
+
+$$ i_{GG1}(t) = \sum_{k=1}^{J}\sum_{l=1}^{J} \left | s_k - s_l \right | p(\omega _k|t)p(\omega _k|l) $$
+
+$$ i_{GG2}(t) = \sum_{k=1}^{J}\sum_{l=1}^{J}  (s_k - s_l)^2 p(\omega _k|t)p(\omega _k|l) $$
+
+Ou seja, consideraremos o erro de classificação como a diferença absoluta entre os pares de resultados, obtendo assim duas equações distintas para o Índice GINI condizentes com a questão ordinal, já que nossa variável é essencialmente deste formato.
+
+## Análise Exploratória
+
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+
+require(caret)
+require(forcats)
+require(tidyverse)
+require(likert)
+require(reshape2)
+require(inspectdf)
+
+
+opt <- theme_bw()+
+  theme(axis.title = element_text(face = "bold", color = "black", size = 20),
+        axis.text.x = element_text(face = "plain", color = "black", 
+                                   size = 18, angle = 90),
+        axis.text.y = element_text(face = "plain", color = "black", size = 18),
+        legend.text=element_text(size=20, face = "bold"),
+        legend.title = element_text(size = 20, face = "bold"),
+        strip.text.x = element_text(size = 18, face = "bold"),
+        strip.text.y = element_text(size = 14, face = "bold"))
+
+# Para S 
+
+load("C:/Users/tarss/Desktop/Ciencia de dados/Buzufba/Buzufba/Trabalho BUZUFBA/multinom.RData")
+
+
+```
+### Perfil do Usuário 
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+ aux2 <- dados %>% 
+  select(2,3,5,11) %>% 
+  mutate(id = factor(seq(1,1657))) %>% 
+  mutate(RENDA = fct_collapse(RENDA,
+                  "0-3 SM" = c("0-1 SM","1-3 SM"),
+                  "3-6 SM" = c("3-6 SM"),
+                  "6-12 SM" = c("6-9 SM","9-12 SM"),
+                  "12+ SM" = c("12-M SM"))) %>% 
+  mutate(VINC = fct_collapse(VINC,
+         "Pos Grad" = c("Mest", "Dout"))) %>% 
+  filter(FREQ_20172 != "Nenhuma") %>% 
+  mutate(FREQ_20172 = fct_collapse(FREQ_20172,
+         'Diária' = c("5-9 Semana", "10-M Semana"),
+         "Semanal" = c("1-4 Semana"), 
+         "Mensal" = c("1-4 Mês"),
+         "Raramente" = c("1-4 Semestre"))) %>% 
+  mutate(RENDA = fct_relevel(RENDA,"12+ SM", "6-12 SM",
+                             "3-6 SM", "0-3 SM" )) %>% 
+  mutate(VINC = fct_relevel(VINC, "Outro",  "STA", "Prof" , 
+                            "Pos Grad", "Grad")) %>% 
+  mutate(FREQ_20172 = fct_relevel(FREQ_20172, "Nenhuma", "Raramente" ,
+                                  "Mensal", "Semanal", "Diária" )) %>% 
+  select(-id)
+
+
+
+
+inspect_cat(aux2, show_plot = TRUE)
+
+```
+ O público que mais respondeu ao questionário e considerado, também, como maiores usuários do BUZUFBA são `mulheres` na `graduação` com renda familia inferior a `3 salários minímos` e que utilizam o sistema de transporte com alta frequência. Em vias gerais, percebe-se que o BUZUFBA atinge seu público alvo que são, principalmente, alunos de graduação com baixa ou média renda familiar. Deve-se ponderar, também, a questão da violência urbana que é tido como fator fundamental para a escolha deste transporte, ao invés de se percorrer as distâncias a pé.
+
+### Deslocamento
+
+
+Quanto ao trecho que seria percorrido caso o usuário tomasse o caminho a pé para um dos pontos de parada do veículo, têm-se como a moda cerca 200 metros. A maioria dos trechos percorrido pelos alunos para chegar a um dos pontos de parada para pegar um dos Buzufba são curtos, não se destacando como um potencial problema para a maioria dos alunos. 
+
+Quanto à distância a pé que seria percorrida, caso não fosse utilizado o Buzufba, observa-se dois padrões. O primeiro padrão versa sobre pequenas caminhadas, inferiores a 1 km de distância, provavelmente, ligadas a questão do desnível que existe entre alguns dos campi, outra questão importante também é a violência urbana que torna este sistema de transporte atrativo mesmo que a distância a ser percorrida seja curta. Quase 70% dos entrevistados em pesquisa de 2010 na UFBA dizem se sentir inseguros no campus, mesmo sob vigilância de câmeras (LEMOS et al., 2011).
+
+Quanto à distância percorrida pelos veículos do Buzufba, têm-se em sua maioria pequenas distâncias, cerca de 3,5 km. Porém, deve-se pontuar que a maioria dos veículos trafega pela Avenida Garibaldi cujo o fluxo é intenso durante os horários de pico.
+
+Por fim, é interessante observar, que se houvesse transportes internos capazes de vencer a questão da diferença de cota entre os campi, poderia ser pensado em sistemas mais inteligentes com rotas menores, tempos de percursos mais rápidos, causando maior sensação de segurança aos usuários e, provavelmente, melhor avaliação por parte dos usuários quanto a qualidade do serviço.
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+desloc <- deslocamento %>% 
+   select(8:10) %>% 
+   mutate(id = as.factor(seq(1:nrow(deslocamento)))) %>% 
+   melt()
+
+p1 <- ggplot(desloc, aes(x = variable, y = value, color = I("blue"))) +
+   geom_boxplot(outlier.colour = "green",
+                outlier.shape = 8, outlier.size = 3) +
+   labs(y = "Distância (km)", x = "") + 
+  scale_y_continuous(breaks = c(seq(0,10, by = 0.5))) +
+   opt
+
+p1
+
+p2 <- ggplot(desloc, aes(x = value, color = I("blue"))) +
+  geom_histogram(bins = 60) +
+  facet_grid(variable~.) +
+  labs(x = "Distância (km)", y = "") +
+  scale_x_continuous(breaks = c(seq(0,10, by = 0.5))) +
+  opt
+
+p2
+
+a <- gridExtra::grid.arrange(p1,p2, ncol = 2)
+
+a
+
+ 
+```
+
+
+### Escala Likert
+
+#### Escala de Importância
+
+
+Quanto a questão da importância de cada uma das variáveis, destaca-se aquela dada a frequência dos veículos, a sua pontualidade e o sentimento de segurança pessoal que este promove, fato observado ao se perceber que 98% dos usuários apontam estas variáveis como muito importante. A análise da importância também aponta para a necessidade de se transportar de forma rápida e segura entre diferentes campis ainda que a distância total entre estes seja curta se realizada a pé.
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+
+aux <- dados[, 36:44] %>% 
+  na.omit() %>%
+  mutate_all(all_vars(fct_relevel(., "ND IMP", "PC IMP", "IMP", "MT IMP"))) %>% 
+  likert()
+
+plot(aux)
+```
+
+
+
+#### Escala de Satisfação
+
+Quanto a satisfação, destaca-se a avaliação dada quanto a falta de satisfação referente a frequência dos veículos, a confiabilidade do serviço e a qualidade dos pontos de espera, mesmo que o último seja avaliado como pouco importante por parte dos respondentes. É perceptível, desde já, que existe uma discrepância entre a importância dada a frequência e aquela que é oferecida pelo sistema, fato que deve influenciar de forma interessante a avaliação do sistema.
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+
+aux <- dados[, 26:35] %>%
+  filter_all(all_vars(. != "")) %>% 
+  mutate_all(all_vars(fct_drop(., only = ""))) %>%
+  mutate_all(all_vars(fct_relevel(., "DC", "DP", "CP", "CC"))) %>% 
+  likert()
+
+plot(aux)
+```
+
+### Modelo para encontrar principais fatores intervenientes: 
+
+Ajustando os bancos de dados, vamos primeiro cortar as variáveis referentes a distâncias a cada 2 KM (mais sobre isto leia aqui: https://tarssioesa.github.io/distancias_buzufba/).
+
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+
+breaks <- seq(0,10, by = 2)
+
+desloc <- deslocamento %>% 
+  select(c(8:10,12,6)) %>% 
+  mutate(trecho.bus = cut(deslocamento$trecho.bus, breaks = breaks, label = FALSE)) %>% 
+  mutate(dist.pe = cut(deslocamento$dist.pe, breaks = breaks, label = FALSE)) %>% 
+  mutate(alternativa = cut(deslocamento$alternativa, breaks = breaks, label = FALSE)) %>% 
+  mutate(trecho.pe = cut(deslocamento$trecho.pe, breaks = breaks, label = FALSE))
+
+``` 
+
+Definiremos os níveis referentes a nossa variável y (resposta) e x (preditoras): 
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+
+y <- dados %>% 
+  select(c(51,26:44,15)) %>% 
+  na.omit() %>% 
+  mutate(MOTIVO1 = fct_lump(MOTIVO1, n = 5)) %>% 
+  mutate(MOTIVO1 = fct_relevel(MOTIVO1, "Aula no local de destino",  "Refeição em Restaurante Universitário",
+                               "Tomar outro nibus em local que o BUZUFBA passa", "Outro",
+                               "Other", "")) %>% 
+  mutate(MOTIVO1 = fct_collapse(MOTIVO1, 
+                                other = c("Other", "Outro")))
+
+y$MOTIVO1 <- reverse.levels(y$MOTIVO1)
+
+x <- y %>% 
+  left_join(deslocamento) %>% 
+  select(c(1:21)) %>% 
+  mutate_if(is.factor, as.numeric) %>% 
+  filter(S_SATS < 5) %>% 
+  left_join(desloc) %>% 
+  na.omit() %>% 
+  select(-1)
+
+```
+
+Criando a partição dos nossos dados (Treino e Teste): 
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+
+set.seed(12)
+
+# Training e Testing
+
+trainIndex <- createDataPartition(x$S_SATS, p = .7, 
+                                  list = FALSE, 
+                                  times = 1)
+
+Train <- x[ trainIndex,] %>% 
+  mutate_all(ordered) %>% 
+  select(-c(trecho.bus))
+
+Test  <- x[-trainIndex,] %>% 
+  mutate_all(ordered)
+
+# Separando em x e y : 
+
+Trainx <- Train[,-c(10)]
+
+Trainy <- Train[,c(1)]
+
+
+Testx <- Test[,-c(10)]
+
+Testy <- Test[,c(1)]
+
+```
+
+Validação Cruzada:
+
+Optaremos pelo k-folds com k igual a dez. Para mais detalhes é interessante observar o capítulo sobre Validação Cruzada do livro `Statistical Learning`.
+
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+cctrl1 <- trainControl(method = "cv", number = 10, returnResamp = "all")
+
+```
+
+### Árvore de Scores: 
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+
+cv_model <- train(Trainx, Trainy, 
+                             method = "rpartScore", 
+                             trControl = cctrl1,
+                             metric = "Accuracy")
+
+
+cv_model
+
+```
+
+Dados os parâmetros da nossa Random Forest baseada em scores ordinários, podemos inferir sobre quais são as variáveis mais importantes para representar a satisfação dos alunos perante o serviço prestado pelo BUZUFBA: 
+
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+
+test_weight <- varImp(cv_model)
+
+plot(test_weight)
+
+```
+
+Muitos alunos precisam se locomover entre os campi da UFBA rapidamente para estar presente nas aulas, por isto a pontualidade e a frequência dos veículos se destacam claramente frente às outras variáveis.
+
+Em segunda instância, aparecem variáveis ligadas a gestão do serviço, nestas estão inclusas a disponibilidade de informação acerca do serviço.
+
+#### Verificação do modelo criado:
+
+```{r echo=FALSE , message=FALSE, warning=FALSE}
+
+
+predictions <- predict(cv_model, Testx)
+
+# summarize results
+
+confusionMatrix(predictions, Testy)
+
+
+```
+
+Temos, por fim, um modelo com boa precisão, a despeito de não conseguir aprender a cerca dos resultados que levam os alunos a se sentirem satisfeito no nível 4 (principalmente pelo baixo número de respondentes). Porém, o modelo representa bem as respostas dadas pelos alunos mais insatisfeitos sugerindo, assim, as principais queixas realizadas pelos alunos respondentes deste questionário.
+
+
+

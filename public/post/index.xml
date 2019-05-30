@@ -6,10 +6,33 @@
     <description>Recent content in Posts on Dad2s</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>pt-BR</language>
-    <lastBuildDate>Mon, 27 May 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 30 May 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>BUZUFBA</title>
+      <link>/2019/05/buzufba/</link>
+      <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/05/buzufba/</guid>
+      <description>Estimação dos atributos relevantes na satisfação de usuários de transporte intercampi por random forestknitr::include_graphics(&amp;quot;buzufba.jpg&amp;quot;)IntroduçãoEsta publicação tem como objetivo debater o artigo publicado no IV SER que visou debater os atributos relevantes para a satisfação dos usúarios do Buzufba (transporte intercapi da Universidade Federal da Bahia).
+Primeiramente, é interessante perceber algumas questões:
+A assiduidade dos usuários ao modal público é diretamente influenciada pela satisfação (qualidade esperada x qualidade percebida) que estes têm ao utilizar o serviço (LAI; CHEN, 2011, FREITAS, 2013).</description>
+    </item>
+    
+    <item>
+      <title>estimação dos atributos relevantes na satisfação de usuários de transporte intercampi por random forest</title>
+      <link>/2019/05/estima%C3%A7%C3%A3o-dos-atributos-relevantes-na-satisfa%C3%A7%C3%A3o-de-usu%C3%A1rios-de-transporte-intercampi-por-random-forest/</link>
+      <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/05/estima%C3%A7%C3%A3o-dos-atributos-relevantes-na-satisfa%C3%A7%C3%A3o-de-usu%C3%A1rios-de-transporte-intercampi-por-random-forest/</guid>
+      <description>
+
+
+</description>
+    </item>
     
     <item>
       <title>Magic com Dados, pt2</title>

@@ -1,0 +1,161 @@
+---
+title: BUZUFBA
+author: Tarssio Barreto e Ícaro Bernardes
+date: '2019-05-30'
+slug: buzufba
+categories: []
+tags:
+  - Random Forest
+keywords:
+  - tech
+---
+
+
+
+<div id="estimacao-dos-atributos-relevantes-na-satisfacao-de-usuarios-de-transporte-intercampi-por-random-forest" class="section level1">
+<h1>Estimação dos atributos relevantes na satisfação de usuários de transporte intercampi por random forest</h1>
+<pre class="r"><code>knitr::include_graphics(&quot;buzufba.jpg&quot;)</code></pre>
+<p><img src="buzufba.jpg" width="480" /></p>
+<div id="introducao" class="section level2">
+<h2>Introdução</h2>
+<p>Esta publicação tem como objetivo debater o artigo publicado no IV SER que visou debater os atributos relevantes para a satisfação dos usúarios do Buzufba (transporte intercapi da Universidade Federal da Bahia).</p>
+<p>Primeiramente, é interessante perceber algumas questões:</p>
+<ul>
+<li><p>A assiduidade dos usuários ao modal público é diretamente influenciada pela satisfação (qualidade esperada x qualidade percebida) que estes têm ao utilizar o serviço (LAI; CHEN, 2011, FREITAS, 2013).</p></li>
+<li><p>Qualidade de serviços e satisfação dos clientes são conceitos subjetivos: Intangibilidade; Heterogeneidade e Inseparabilidade</p></li>
+<li><p>Uma vez que a qualidade é uma construção social (PARASURAMAN; ZEITHAML; BERRY, 1985), a satisfação dos usuários e a importância dada a aspectos do serviço é função de características socioeconômicas como gênero, idade, ocupação, renda, nível educacional e outros (GUIRAO; GARCÍA-PASTOR; LÓPEZ-LAMBAS, 2016).</p></li>
+</ul>
+<p>Nos estudos sobre a qualidade dos serviços, a prática comum é a proposição de questionários ao público. Em tais pesquisas os clientes expressam sua satisfação global e sobre atributos do serviço. Há duas vias principais de estimação da ordem de importância destes atributos: importância declarada e importância derivada. Na primeira, os usuários são convidados a ordenar as características do serviço por importância. É um método mais direto e intuitivo, mas que amplia o tamanho do questionário e, por consequência, o fardo sobre o entrevistado podendo diminuir a precisão e a frequência de resposta da pesquisa. A importância derivada por sua vez estima o valor relativo das categorias mensurando estatisticamente a intensidade do elo entre cada atributo com a medida global de satisfação (GUIRAO; GARCÍA-PASTOR; LÓPEZ-LAMBAS, 2016).</p>
+<p>O questionário em questão, porém, apenas inqueriu sobre a avaliação de determinadas variáveis e a satisfação geral dos usuários frente ao serviço de transporte prestado pelo Buzufba.</p>
+<pre class="r"><code>knitr::include_graphics(&quot;tabela.jpg&quot;)</code></pre>
+<p><img src="tabela.jpg" width="306" /></p>
+</div>
+<div id="uma-formulacao-diferente-para-a-random-forest" class="section level2">
+<h2>Uma formulação diferente para a Random Forest:</h2>
+<p>Dada a função generalizada GINI, para medição de impureza de um determinado nó t:</p>
+<p><span class="math display">\[ i_{GG}(t) = \sum_{k=1}^{J}\sum_{l=1}^{J} C(\omega _k|\omega _l) p(\omega _k|t)p(\omega _k|l) \]</span></p>
+<p>Sendo <span class="math inline">\(\omega\)</span> as categorias ordinais da variável resposta Y.</p>
+<p>Supondo um conjunto s de scores que representam a variável Y podemos considerar o erro de classificação como uma transformação desejada para a diferença absoluta entre os pares de resultados, obtendo assim duas equações distintas para o <span class="math display">\[ i_{GG}(t)\]</span> :</p>
+<p><span class="math display">\[ i_{GG1}(t) = \sum_{k=1}^{J}\sum_{l=1}^{J} \left | s_k - s_l \right | p(\omega _k|t)p(\omega _k|l) \]</span></p>
+<p><span class="math display">\[ i_{GG2}(t) = \sum_{k=1}^{J}\sum_{l=1}^{J}  (s_k - s_l)^2 p(\omega _k|t)p(\omega _k|l) \]</span></p>
+<p>Ou seja, consideraremos o erro de classificação como a diferença absoluta entre os pares de resultados, obtendo assim duas equações distintas para o Índice GINI condizentes com a questão ordinal, já que nossa variável é essencialmente deste formato.</p>
+</div>
+<div id="analise-exploratoria" class="section level2">
+<h2>Análise Exploratória</h2>
+<div id="perfil-do-usuario" class="section level3">
+<h3>Perfil do Usuário</h3>
+<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre><code>## # A tibble: 4 x 5
+##   col_name     cnt common  common_pcnt levels          
+##   &lt;chr&gt;      &lt;int&gt; &lt;chr&gt;         &lt;dbl&gt; &lt;list&gt;          
+## 1 FREQ_20172     4 Semanal        37.3 &lt;tibble [4 x 3]&gt;
+## 2 RENDA          4 0-3 SM         62.1 &lt;tibble [4 x 3]&gt;
+## 3 SEXO           2 F              63.0 &lt;tibble [2 x 3]&gt;
+## 4 VINC           5 Grad           88.8 &lt;tibble [5 x 3]&gt;</code></pre>
+<p>O público que mais respondeu ao questionário e considerado, também, como maiores usuários do BUZUFBA são <code>mulheres</code> na <code>graduação</code> com renda familia inferior a <code>3 salários minímos</code> e que utilizam o sistema de transporte com alta frequência. Em vias gerais, percebe-se que o BUZUFBA atinge seu público alvo que são, principalmente, alunos de graduação com baixa ou média renda familiar. Deve-se ponderar, também, a questão da violência urbana que é tido como fator fundamental para a escolha deste transporte, ao invés de se percorrer as distâncias a pé.</p>
+</div>
+<div id="deslocamento" class="section level3">
+<h3>Deslocamento</h3>
+<p>Quanto ao trecho que seria percorrido caso o usuário tomasse o caminho a pé para um dos pontos de parada do veículo, têm-se como a moda cerca 200 metros. A maioria dos trechos percorrido pelos alunos para chegar a um dos pontos de parada para pegar um dos Buzufba são curtos, não se destacando como um potencial problema para a maioria dos alunos.</p>
+<p>Quanto à distância a pé que seria percorrida, caso não fosse utilizado o Buzufba, observa-se dois padrões. O primeiro padrão versa sobre pequenas caminhadas, inferiores a 1 km de distância, provavelmente, ligadas a questão do desnível que existe entre alguns dos campi, outra questão importante também é a violência urbana que torna este sistema de transporte atrativo mesmo que a distância a ser percorrida seja curta. Quase 70% dos entrevistados em pesquisa de 2010 na UFBA dizem se sentir inseguros no campus, mesmo sob vigilância de câmeras (LEMOS et al., 2011).</p>
+<p>Quanto à distância percorrida pelos veículos do Buzufba, têm-se em sua maioria pequenas distâncias, cerca de 3,5 km. Porém, deve-se pontuar que a maioria dos veículos trafega pela Avenida Garibaldi cujo o fluxo é intenso durante os horários de pico.</p>
+<p>Por fim, é interessante observar, que se houvesse transportes internos capazes de vencer a questão da diferença de cota entre os campi, poderia ser pensado em sistemas mais inteligentes com rotas menores, tempos de percursos mais rápidos, causando maior sensação de segurança aos usuários e, provavelmente, melhor avaliação por parte dos usuários quanto a qualidade do serviço.</p>
+<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-5-1.png" width="672" /><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-5-2.png" width="672" /><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
+<pre><code>## TableGrob (1 x 2) &quot;arrange&quot;: 2 grobs
+##   z     cells    name           grob
+## 1 1 (1-1,1-1) arrange gtable[layout]
+## 2 2 (1-1,2-2) arrange gtable[layout]</code></pre>
+</div>
+<div id="escala-likert" class="section level3">
+<h3>Escala Likert</h3>
+<div id="escala-de-importancia" class="section level4">
+<h4>Escala de Importância</h4>
+<p>Quanto a questão da importância de cada uma das variáveis, destaca-se aquela dada a frequência dos veículos, a sua pontualidade e o sentimento de segurança pessoal que este promove, fato observado ao se perceber que 98% dos usuários apontam estas variáveis como muito importante. A análise da importância também aponta para a necessidade de se transportar de forma rápida e segura entre diferentes campis ainda que a distância total entre estes seja curta se realizada a pé.</p>
+<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+<div id="escala-de-satisfacao" class="section level4">
+<h4>Escala de Satisfação</h4>
+<p>Quanto a satisfação, destaca-se a avaliação dada quanto a falta de satisfação referente a frequência dos veículos, a confiabilidade do serviço e a qualidade dos pontos de espera, mesmo que o último seja avaliado como pouco importante por parte dos respondentes. É perceptível, desde já, que existe uma discrepância entre a importância dada a frequência e aquela que é oferecida pelo sistema, fato que deve influenciar de forma interessante a avaliação do sistema.</p>
+<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+</div>
+<div id="modelo-para-encontrar-principais-fatores-intervenientes" class="section level3">
+<h3>Modelo para encontrar principais fatores intervenientes:</h3>
+<p>Ajustando os bancos de dados, vamos primeiro cortar as variáveis referentes a distâncias a cada 2 KM (mais sobre isto leia aqui: <a href="https://tarssioesa.github.io/distancias_buzufba/" class="uri">https://tarssioesa.github.io/distancias_buzufba/</a>).</p>
+<p>Definiremos os níveis referentes a nossa variável y (resposta) e x (preditoras):</p>
+<p>Criando a partição dos nossos dados (Treino e Teste):</p>
+<p>Validação Cruzada:</p>
+<p>Optaremos pelo k-folds com k igual a dez. Para mais detalhes é interessante observar o capítulo sobre Validação Cruzada do livro <code>Statistical Learning</code>.</p>
+</div>
+<div id="arvore-de-scores" class="section level3">
+<h3>Árvore de Scores:</h3>
+<pre><code>## CART or Ordinal Responses 
+## 
+## 810 samples
+##  22 predictor
+##   4 classes: &#39;1&#39;, &#39;2&#39;, &#39;3&#39;, &#39;4&#39; 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (10 fold) 
+## Summary of sample sizes: 728, 729, 731, 730, 728, 728, ... 
+## Resampling results across tuning parameters:
+## 
+##   cp          split  prune  Accuracy   Kappa    
+##   0.05590062  abs    mr     0.9742547  0.9615842
+##   0.05590062  abs    mc     0.9667231  0.9502725
+##   0.05590062  quad   mr     0.9742547  0.9615842
+##   0.05590062  quad   mc     0.9667231  0.9502725
+##   0.43478261  abs    mr     0.8357890  0.7392770
+##   0.43478261  abs    mc     0.9667231  0.9502725
+##   0.43478261  quad   mr     0.9667231  0.9502725
+##   0.43478261  quad   mc     0.9667231  0.9502725
+##   0.50931677  abs    mr     0.4629789  0.1052632
+##   0.50931677  abs    mc     0.4037196  0.0000000
+##   0.50931677  quad   mr     0.4037196  0.0000000
+##   0.50931677  quad   mc     0.4037196  0.0000000
+## 
+## Accuracy was used to select the optimal model using the largest value.
+## The final values used for the model were cp = 0.05590062, split = abs
+##  and prune = mr.</code></pre>
+<p>Dados os parâmetros da nossa Random Forest baseada em scores ordinários, podemos inferir sobre quais são as variáveis mais importantes para representar a satisfação dos alunos perante o serviço prestado pelo BUZUFBA:</p>
+<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>Muitos alunos precisam se locomover entre os campi da UFBA rapidamente para estar presente nas aulas, por isto a pontualidade e a frequência dos veículos se destacam claramente frente às outras variáveis.</p>
+<p>Em segunda instância, aparecem variáveis ligadas a gestão do serviço, nestas estão inclusas a disponibilidade de informação acerca do serviço.</p>
+<div id="verificacao-do-modelo-criado" class="section level4">
+<h4>Verificação do modelo criado:</h4>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction   1   2   3   4
+##          1 122   0   0   0
+##          2   0 127   0   0
+##          3   0   0  85  11
+##          4   0   0   0   0
+## 
+## Overall Statistics
+##                                          
+##                Accuracy : 0.9681         
+##                  95% CI : (0.9437, 0.984)
+##     No Information Rate : 0.3681         
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
+##                                          
+##                   Kappa : 0.9525         
+##                                          
+##  Mcnemar&#39;s Test P-Value : NA             
+## 
+## Statistics by Class:
+## 
+##                      Class: 1 Class: 2 Class: 3 Class: 4
+## Sensitivity            1.0000   1.0000   1.0000  0.00000
+## Specificity            1.0000   1.0000   0.9577  1.00000
+## Pos Pred Value         1.0000   1.0000   0.8854      NaN
+## Neg Pred Value         1.0000   1.0000   1.0000  0.96812
+## Prevalence             0.3536   0.3681   0.2464  0.03188
+## Detection Rate         0.3536   0.3681   0.2464  0.00000
+## Detection Prevalence   0.3536   0.3681   0.2783  0.00000
+## Balanced Accuracy      1.0000   1.0000   0.9788  0.50000</code></pre>
+<p>Temos, por fim, um modelo com boa precisão, a despeito de não conseguir aprender a cerca dos resultados que levam os alunos a se sentirem satisfeito no nível 4 (principalmente pelo baixo número de respondentes). Porém, o modelo representa bem as respostas dadas pelos alunos mais insatisfeitos sugerindo, assim, as principais queixas realizadas pelos alunos respondentes deste questionário.</p>
+</div>
+</div>
+</div>
+</div>
