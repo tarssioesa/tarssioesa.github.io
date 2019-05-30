@@ -11,6 +11,8 @@ keywords:
 ---
 
 
+Contribuição : Ícaro Bernardes, Jorge Ubiraja, Karla Esquerre
+
 # Estimação dos atributos relevantes na satisfação de usuários de transporte intercampi por random forest
 
 ```{r}
