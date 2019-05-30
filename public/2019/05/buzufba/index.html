@@ -234,19 +234,13 @@ Primeiramente, é interessante perceber algumas questões:
 </div>
 <div id="uma-formulacao-diferente-para-a-random-forest" class="section level2">
 <h2>Uma formulação diferente para a Random Forest:</h2>
-<p>Dada a função generalizada GINI, para medição de impureza de um determinado nó t:</p>
-<p><span class="math display">\[ i_{GG}(t) = \sum_{k=1}^{J}\sum_{l=1}^{J} C(\omega _k|\omega _l) p(\omega _k|t)p(\omega _k|l) \]</span></p>
-<p>Sendo <span class="math inline">\(\omega\)</span> as categorias ordinais da variável resposta Y.</p>
-<p>Supondo um conjunto s de scores que representam a variável Y podemos considerar o erro de classificação como uma transformação desejada para a diferença absoluta entre os pares de resultados, obtendo assim duas equações distintas para o <span class="math display">\[ i_{GG}(t)\]</span> :</p>
-<p><span class="math display">\[ i_{GG1}(t) = \sum_{k=1}^{J}\sum_{l=1}^{J} \left | s_k - s_l \right | p(\omega _k|t)p(\omega _k|l) \]</span></p>
-<p><span class="math display">\[ i_{GG2}(t) = \sum_{k=1}^{J}\sum_{l=1}^{J}  (s_k - s_l)^2 p(\omega _k|t)p(\omega _k|l) \]</span></p>
-<p>Ou seja, consideraremos o erro de classificação como a diferença absoluta entre os pares de resultados, obtendo assim duas equações distintas para o Índice GINI condizentes com a questão ordinal, já que nossa variável é essencialmente deste formato.</p>
-</div>
-<div id="analise-exploratoria" class="section level2">
-<h2>Análise Exploratória</h2>
+<p>Infelizmente, eu não consegui por as equações via latex, mas segue uma imagem que fala um pouco sobre a mudança do equacionamento do Índice GINI que o torna adequado para variáveis ordinais:</p>
+<pre class="r"><code>knitr::include_graphics(&quot;equation.jpg&quot;)</code></pre>
+<p><img src="equation.jpg" width="573" />
+## Análise Exploratória</p>
 <div id="perfil-do-usuario" class="section level3">
 <h3>Perfil do Usuário</h3>
-<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <pre><code>## # A tibble: 4 x 5
 ##   col_name     cnt common  common_pcnt levels          
 ##   &lt;chr&gt;      &lt;int&gt; &lt;chr&gt;         &lt;dbl&gt; &lt;list&gt;          
@@ -262,23 +256,19 @@ Primeiramente, é interessante perceber algumas questões:
 <p>Quanto à distância a pé que seria percorrida, caso não fosse utilizado o Buzufba, observa-se dois padrões. O primeiro padrão versa sobre pequenas caminhadas, inferiores a 1 km de distância, provavelmente, ligadas a questão do desnível que existe entre alguns dos campi, outra questão importante também é a violência urbana que torna este sistema de transporte atrativo mesmo que a distância a ser percorrida seja curta. Quase 70% dos entrevistados em pesquisa de 2010 na UFBA dizem se sentir inseguros no campus, mesmo sob vigilância de câmeras (LEMOS et al., 2011).</p>
 <p>Quanto à distância percorrida pelos veículos do Buzufba, têm-se em sua maioria pequenas distâncias, cerca de 3,5 km. Porém, deve-se pontuar que a maioria dos veículos trafega pela Avenida Garibaldi cujo o fluxo é intenso durante os horários de pico.</p>
 <p>Por fim, é interessante observar, que se houvesse transportes internos capazes de vencer a questão da diferença de cota entre os campi, poderia ser pensado em sistemas mais inteligentes com rotas menores, tempos de percursos mais rápidos, causando maior sensação de segurança aos usuários e, provavelmente, melhor avaliação por parte dos usuários quanto a qualidade do serviço.</p>
-<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-5-1.png" width="672" /><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-5-2.png" width="672" /><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
-<pre><code>## TableGrob (1 x 2) &quot;arrange&quot;: 2 grobs
-##   z     cells    name           grob
-## 1 1 (1-1,1-1) arrange gtable[layout]
-## 2 2 (1-1,2-2) arrange gtable[layout]</code></pre>
+<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-6-1.png" width="672" /><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
 </div>
 <div id="escala-likert" class="section level3">
 <h3>Escala Likert</h3>
 <div id="escala-de-importancia" class="section level4">
 <h4>Escala de Importância</h4>
 <p>Quanto a questão da importância de cada uma das variáveis, destaca-se aquela dada a frequência dos veículos, a sua pontualidade e o sentimento de segurança pessoal que este promove, fato observado ao se perceber que 98% dos usuários apontam estas variáveis como muito importante. A análise da importância também aponta para a necessidade de se transportar de forma rápida e segura entre diferentes campis ainda que a distância total entre estes seja curta se realizada a pé.</p>
-<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 </div>
 <div id="escala-de-satisfacao" class="section level4">
 <h4>Escala de Satisfação</h4>
 <p>Quanto a satisfação, destaca-se a avaliação dada quanto a falta de satisfação referente a frequência dos veículos, a confiabilidade do serviço e a qualidade dos pontos de espera, mesmo que o último seja avaliado como pouco importante por parte dos respondentes. É perceptível, desde já, que existe uma discrepância entre a importância dada a frequência e aquela que é oferecida pelo sistema, fato que deve influenciar de forma interessante a avaliação do sistema.</p>
-<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 </div>
 </div>
 <div id="modelo-para-encontrar-principais-fatores-intervenientes" class="section level3">
@@ -320,7 +310,7 @@ Primeiramente, é interessante perceber algumas questões:
 ## The final values used for the model were cp = 0.05590062, split = abs
 ##  and prune = mr.</code></pre>
 <p>Dados os parâmetros da nossa Random Forest baseada em scores ordinários, podemos inferir sobre quais são as variáveis mais importantes para representar a satisfação dos alunos perante o serviço prestado pelo BUZUFBA:</p>
-<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="/post/2019-05-30-buzufba_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <p>Muitos alunos precisam se locomover entre os campi da UFBA rapidamente para estar presente nas aulas, por isto a pontualidade e a frequência dos veículos se destacam claramente frente às outras variáveis.</p>
 <p>Em segunda instância, aparecem variáveis ligadas a gestão do serviço, nestas estão inclusas a disponibilidade de informação acerca do serviço.</p>
 <div id="verificacao-do-modelo-criado" class="section level4">

@@ -40,20 +40,12 @@ knitr::include_graphics("tabela.jpg")
 
 ## Uma formulação diferente para a Random Forest: 
 
-Dada a função generalizada GINI, para medição de impureza de um determinado nó t:
+Infelizmente, eu não consegui por as equações via latex, mas segue uma imagem que fala um pouco sobre a mudança do equacionamento do Índice GINI que o torna adequado para variáveis ordinais: 
 
-$$ i_{GG}(t) = \sum_{k=1}^{J}\sum_{l=1}^{J} C(\omega _k|\omega _l) p(\omega _k|t)p(\omega _k|l) $$
+```{r}
+knitr::include_graphics("equation.jpg")
 
-Sendo $\omega$ as categorias ordinais da variável resposta Y.
-
-Supondo um conjunto s de scores que representam a variável Y podemos considerar o erro de classificação como uma transformação desejada para a diferença absoluta entre os pares de resultados, obtendo assim duas equações distintas para o $$ i_{GG}(t)$$ :
-
-$$ i_{GG1}(t) = \sum_{k=1}^{J}\sum_{l=1}^{J} \left | s_k - s_l \right | p(\omega _k|t)p(\omega _k|l) $$
-
-$$ i_{GG2}(t) = \sum_{k=1}^{J}\sum_{l=1}^{J}  (s_k - s_l)^2 p(\omega _k|t)p(\omega _k|l) $$
-
-Ou seja, consideraremos o erro de classificação como a diferença absoluta entre os pares de resultados, obtendo assim duas equações distintas para o Índice GINI condizentes com a questão ordinal, já que nossa variável é essencialmente deste formato.
-
+```
 ## Análise Exploratória
 
 
@@ -139,7 +131,7 @@ p1 <- ggplot(desloc, aes(x = variable, y = value, color = I("blue"))) +
    geom_boxplot(outlier.colour = "green",
                 outlier.shape = 8, outlier.size = 3) +
    labs(y = "Distância (km)", x = "") + 
-  scale_y_continuous(breaks = c(seq(0,10, by = 0.5))) +
+  scale_y_continuous(breaks = c(seq(0,10, by = 1))) +
    opt
 
 p1
@@ -148,14 +140,11 @@ p2 <- ggplot(desloc, aes(x = value, color = I("blue"))) +
   geom_histogram(bins = 60) +
   facet_grid(variable~.) +
   labs(x = "Distância (km)", y = "") +
-  scale_x_continuous(breaks = c(seq(0,10, by = 0.5))) +
+  scale_x_continuous(breaks = c(seq(0,10, by = 1))) +
   opt
 
 p2
 
-a <- gridExtra::grid.arrange(p1,p2, ncol = 2)
-
-a
 
  
 ```
